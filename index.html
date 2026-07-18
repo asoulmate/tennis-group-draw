@@ -1,0 +1,2045 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#174f46" />
+  <title>테니스 조 추첨 · 페어 생성</title>
+  <style>
+    :root {
+      --bg: #f3f7f5;
+      --surface: #ffffff;
+      --surface-soft: #eef7f3;
+      --surface-strong: #e3f1eb;
+      --text: #17211e;
+      --muted: #61706b;
+      --line: #d9e4df;
+      --primary: #176c5b;
+      --primary-hover: #115747;
+      --primary-soft: #dff2eb;
+      --danger: #b42318;
+      --danger-soft: #fff1f0;
+      --warning: #8a4b08;
+      --warning-soft: #fff6e8;
+      --shadow: 0 16px 40px rgba(28, 65, 55, 0.09);
+      --radius-lg: 22px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(117, 196, 166, 0.18), transparent 34rem),
+        linear-gradient(180deg, #f9fcfa 0%, var(--bg) 100%);
+      font-family:
+        Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 64px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 34px;
+      margin-bottom: 22px;
+      color: #ffffff;
+      background:
+        linear-gradient(135deg, rgba(7, 53, 45, 0.97), rgba(25, 115, 94, 0.94)),
+        var(--primary);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -74px;
+      right: -64px;
+      width: 220px;
+      height: 220px;
+      border: 28px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 10px;
+      color: #c9f3e6;
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      background: #b8ef54;
+      border-radius: 50%;
+      box-shadow: 0 0 0 5px rgba(184, 239, 84, 0.14);
+    }
+
+    .hero h1 {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 1.1;
+      letter-spacing: -0.045em;
+    }
+
+    .hero-brand {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      margin: 13px 0 0;
+      color: #f6d37a;
+      font-size: 0.95rem;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-brand::before,
+    .hero-brand::after {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: rgba(246, 211, 122, 0.68);
+    }
+
+    .hero-brand .club-name {
+      color: rgba(255, 255, 255, 0.94);
+      letter-spacing: 0.02em;
+    }
+
+    .hero-brand .brand-dot {
+      color: #f6d37a;
+      font-size: 0.78em;
+    }
+
+    .hero p {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 14px 0 0;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 1rem;
+    }
+
+    .layout {
+      display: grid;
+      gap: 22px;
+    }
+
+    .panel {
+      padding: 28px;
+      background: var(--surface);
+      border: 1px solid rgba(217, 228, 223, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 30px rgba(28, 65, 55, 0.055);
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .panel-heading h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: -0.025em;
+    }
+
+    .panel-heading p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .summary-badge {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .top-setting {
+      display: grid;
+      grid-template-columns: minmax(220px, 340px) minmax(0, 1fr);
+      gap: 20px;
+      align-items: center;
+      padding: 22px;
+      margin-bottom: 22px;
+      background:
+        linear-gradient(135deg, rgba(223, 242, 235, 0.92), rgba(246, 252, 249, 0.96));
+      border: 1px solid #c7e3d8;
+      border-radius: 18px;
+    }
+
+    .top-setting-copy strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #29483f;
+      font-size: 1rem;
+    }
+
+    .top-setting-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .field-label {
+      color: #34433e;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 13px;
+      color: var(--text);
+      background: #ffffff;
+      border: 1px solid #cbd9d3;
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    input::placeholder {
+      color: #9ba9a4;
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(23, 108, 91, 0.13);
+    }
+
+    .group-setting-list {
+      display: grid;
+      gap: 13px;
+    }
+
+    .group-setting-card {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) minmax(135px, 185px) minmax(160px, 205px);
+      gap: 14px;
+      align-items: end;
+      padding: 15px;
+      background: #fbfdfc;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+    }
+
+    .group-index {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 13px;
+      font-size: 0.9rem;
+      font-weight: 900;
+    }
+
+    .pairing-guide {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      margin: -4px 0 18px;
+      color: #31564d;
+      background: #f2f8f6;
+      border: 1px solid #d2e6df;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+    }
+
+    .pairing-guide strong {
+      color: var(--primary);
+    }
+
+    .pair-field .field-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .optional-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .allocation-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .allocation-chip,
+    .meta-chip {
+      padding: 7px 11px;
+      color: #36534b;
+      background: #edf5f2;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .participant-toolbar {
+      display: grid;
+      grid-template-columns: minmax(210px, 310px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+      padding: 18px;
+      margin-bottom: 18px;
+      background: var(--surface-soft);
+      border-radius: var(--radius-md);
+    }
+
+    .participant-total {
+      display: grid;
+      gap: 3px;
+    }
+
+    .participant-total span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .participant-total strong {
+      color: var(--primary);
+      font-size: 1.55rem;
+      letter-spacing: -0.03em;
+    }
+
+    .progress-wrap {
+      display: grid;
+      gap: 7px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 8px;
+      overflow: hidden;
+      background: #d5e6df;
+      border-radius: 999px;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: var(--primary);
+      border-radius: inherit;
+      transition: width 0.2s ease;
+    }
+
+    .helper-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .grouped-name-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .group-participant-card {
+      overflow: hidden;
+      background: #fbfdfc;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+    }
+
+    .group-participant-card.complete {
+      border-color: #a8d2c4;
+      box-shadow: 0 0 0 3px rgba(23, 108, 91, 0.06);
+    }
+
+    .group-participant-card.incomplete {
+      border-style: dashed;
+    }
+
+    .group-participant-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, rgba(223, 242, 235, 0.82), rgba(247, 252, 250, 0.95));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .group-title-wrap {
+      min-width: 0;
+    }
+
+    .group-kicker {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .group-participant-header h3 {
+      overflow-wrap: anywhere;
+      margin: 0;
+      font-size: 1.08rem;
+      letter-spacing: -0.02em;
+    }
+
+    .group-participant-meta {
+      display: grid;
+      justify-items: end;
+      gap: 4px;
+      flex: 0 0 auto;
+    }
+
+    .group-capacity-badge {
+      padding: 5px 9px;
+      color: var(--primary);
+      background: #ffffff;
+      border: 1px solid #b9d9ce;
+      border-radius: 999px;
+      font-size: 0.79rem;
+      font-weight: 900;
+    }
+
+    .group-progress-text {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 750;
+    }
+
+    .group-name-body {
+      padding: 16px 18px 18px;
+    }
+
+    .group-input-note {
+      margin: 0;
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .name-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+    }
+
+    .name-card {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 9px;
+      align-items: center;
+      padding: 10px;
+      background: #fbfdfc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .name-index {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .name-card input {
+      min-height: 42px;
+      padding: 8px 11px;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 30px 18px;
+      color: var(--muted);
+      text-align: center;
+      background: #fbfdfc;
+      border: 1px dashed #cddbd5;
+      border-radius: var(--radius-md);
+    }
+
+    .fairness-note {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      color: #31564d;
+      background: #eef8f4;
+      border: 1px solid #cee8de;
+      border-radius: var(--radius-md);
+      font-size: 0.91rem;
+    }
+
+    .fairness-note svg {
+      flex: 0 0 auto;
+      width: 20px;
+      height: 20px;
+      margin-top: 1px;
+    }
+
+    .message {
+      display: none;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.93rem;
+      font-weight: 700;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      color: var(--danger);
+      background: var(--danger-soft);
+      border: 1px solid #f5c9c5;
+    }
+
+    .message.warning {
+      color: var(--warning);
+      background: var(--warning-soft);
+      border: 1px solid #f1d4a6;
+    }
+
+    .action-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .button {
+      min-height: 52px;
+      padding: 12px 18px;
+      border-radius: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .button:active:not(:disabled) {
+      transform: translateY(1px) scale(0.995);
+    }
+
+    .button-primary {
+      color: #ffffff;
+      background: var(--primary);
+      border: 1px solid var(--primary);
+      box-shadow: 0 10px 22px rgba(23, 108, 91, 0.19);
+    }
+
+    .button-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .button-secondary {
+      color: var(--primary);
+      background: #ffffff;
+      border: 1px solid #9cc5b8;
+    }
+
+    .button-secondary:hover:not(:disabled) {
+      background: var(--surface-soft);
+    }
+
+    .button:disabled {
+      color: #93a09b;
+      background: #eef2f0;
+      border-color: #d9e1de;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .result-panel {
+      display: none;
+    }
+
+    .result-panel.show {
+      display: block;
+      animation: reveal 0.38s ease both;
+    }
+
+    @keyframes reveal {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+    }
+
+    .result-card {
+      overflow: hidden;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 8px 22px rgba(28, 65, 55, 0.06);
+    }
+
+    .result-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px;
+      background:
+        linear-gradient(135deg, rgba(223, 242, 235, 0.92), rgba(247, 252, 250, 0.94));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .result-card-header h3 {
+      overflow-wrap: anywhere;
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: -0.015em;
+    }
+
+    .member-count {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      color: var(--primary);
+      background: #ffffff;
+      border: 1px solid #b9d9ce;
+      border-radius: 999px;
+      font-size: 0.79rem;
+      font-weight: 900;
+    }
+
+    .member-list {
+      display: grid;
+      gap: 0;
+      margin: 0;
+      padding: 5px 16px 10px;
+      list-style: none;
+    }
+
+    .member-list li {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #edf2f0;
+    }
+
+    .member-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .member-number {
+      display: grid;
+      place-items: center;
+      width: 27px;
+      height: 27px;
+      color: var(--muted);
+      background: #f0f4f2;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 900;
+    }
+
+    .member-name {
+      overflow-wrap: anywhere;
+      font-weight: 750;
+    }
+
+    .result-section-heading {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+      color: #29483f;
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .result-section-heading::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .pair-result-card {
+      grid-column: 1 / -1;
+      overflow: hidden;
+      background: #ffffff;
+      border: 1px solid #c9dfd7;
+      border-radius: 18px;
+      box-shadow: 0 8px 22px rgba(28, 65, 55, 0.06);
+    }
+
+    .pair-result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, #dff2eb, #f7fcfa);
+      border-bottom: 1px solid #cfe2db;
+    }
+
+    .pair-result-title {
+      min-width: 0;
+    }
+
+    .pair-result-title span {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .pair-result-title h3 {
+      overflow-wrap: anywhere;
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .pair-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 14px;
+      list-style: none;
+    }
+
+    .pair-row {
+      display: grid;
+      grid-template-columns: 62px minmax(0, 1fr) 34px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      background: #fbfdfc;
+      border: 1px solid #e0eae6;
+      border-radius: 13px;
+    }
+
+    .pair-number {
+      display: grid;
+      place-items: center;
+      min-height: 42px;
+      padding: 5px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .pair-member {
+      min-width: 0;
+      padding: 8px 11px;
+      background: #ffffff;
+      border: 1px solid #dbe7e2;
+      border-radius: 10px;
+    }
+
+    .pair-group-name {
+      display: block;
+      overflow-wrap: anywhere;
+      margin-bottom: 1px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .pair-member-name {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 0.98rem;
+      font-weight: 900;
+    }
+
+    .pair-link {
+      display: grid;
+      place-items: center;
+      color: var(--primary);
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .footer-note {
+      margin: 20px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.84rem;
+    }
+
+    @media (max-width: 720px) {
+      .app-shell {
+        width: min(100% - 20px, 1120px);
+        padding: 18px 0 38px;
+      }
+
+      .hero {
+        padding: 26px 22px;
+        border-radius: 22px;
+      }
+
+      .panel {
+        padding: 21px 16px;
+        border-radius: 18px;
+      }
+
+      .panel-heading {
+        display: grid;
+        gap: 12px;
+      }
+
+      .summary-badge {
+        width: fit-content;
+      }
+
+      .top-setting {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 17px;
+      }
+
+      .group-setting-card {
+        grid-template-columns: 42px minmax(0, 1fr) 104px;
+        gap: 9px;
+        padding: 12px;
+      }
+
+      .pair-field {
+        grid-column: 2 / -1;
+      }
+
+      .group-index {
+        width: 42px;
+        height: 46px;
+      }
+
+      .participant-toolbar {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 15px;
+      }
+
+      .group-participant-header {
+        align-items: flex-start;
+        padding: 14px;
+      }
+
+      .group-name-body {
+        padding: 13px;
+      }
+
+      .name-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .button {
+        min-height: 54px;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pair-result-header {
+        align-items: flex-start;
+        padding: 14px;
+      }
+
+      .pair-list {
+        padding: 11px;
+      }
+
+      .pair-row {
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .pair-link {
+        display: none;
+      }
+
+      .pair-member:last-child {
+        grid-column: 2;
+      }
+    }
+
+    @media (max-width: 470px) {
+      .group-setting-card {
+        grid-template-columns: 38px minmax(0, 1fr) 88px;
+      }
+
+      .group-index {
+        width: 38px;
+      }
+
+      input {
+        padding-inline: 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <p class="eyebrow">Tennis Group Draw</p>
+      <h1>테니스 조 추첨</h1>
+      <div class="hero-brand" aria-label="제작자 KCS, 모닝스타 클럽">
+        <span>KCS</span>
+        <span class="brand-dot" aria-hidden="true">◆</span>
+        <span class="club-name">모닝스타</span>
+      </div>
+      <p>
+        전체 조 개수를 정한 뒤 각 조의 이름과 참가 인원을 입력하세요.
+        원하는 두 조를 같은 페어 그룹으로 묶으면, 각 조를 따로 추첨한 뒤 같은 순번끼리 페어가 됩니다.
+      </p>
+    </header>
+
+    <form id="drawForm" class="layout" novalidate>
+      <section class="panel" aria-labelledby="groupSettingTitle">
+        <div class="panel-heading">
+          <div>
+            <h2 id="groupSettingTitle">1. 조 개수와 조별 인원 설정</h2>
+            <p>최상단에서 전체 조 개수를 정하면 해당 개수만큼 조 설정란이 생성됩니다.</p>
+          </div>
+          <div id="groupSummary" class="summary-badge" aria-live="polite">4개 조 · 0명</div>
+        </div>
+
+        <div class="top-setting">
+          <label class="field" for="totalGroupCount">
+            <span class="field-label">전체 조 개수</span>
+            <input
+              id="totalGroupCount"
+              name="totalGroupCount"
+              type="number"
+              inputmode="numeric"
+              min="1"
+              max="30"
+              step="1"
+              value="4"
+              autocomplete="off"
+            />
+          </label>
+
+          <div class="top-setting-copy">
+            <strong>입력한 수만큼 조 설정란을 자동 생성합니다.</strong>
+            <p>조 이름, 참가 인원수, 선택 사항인 페어 그룹을 설정해 주세요.</p>
+          </div>
+        </div>
+
+        <div class="pairing-guide">
+          <span aria-hidden="true">🎾</span>
+          <span>
+            <strong>페어 그룹은 선택 사항입니다.</strong> 같은 페어 그룹을 선택한 두 조는 인원수가 같아야 하며,
+            추첨 후 1번끼리, 2번끼리 순서대로 페어가 됩니다. 미지정 조는 조별 순서만 무작위로 추첨합니다.
+          </span>
+        </div>
+
+        <div id="groupSettingList" class="group-setting-list"></div>
+        <div id="allocationPreview" class="allocation-preview" aria-live="polite"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="participantTitle">
+        <div class="panel-heading">
+          <div>
+            <h2 id="participantTitle">2. 조별 참가자 이름 입력</h2>
+            <p>각 조에 설정한 인원수만큼 이름칸이 별도로 생성됩니다.</p>
+          </div>
+        </div>
+
+        <div class="participant-toolbar">
+          <div class="participant-total">
+            <span>필요한 전체 참가 인원</span>
+            <strong id="participantTotalText">0명</strong>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-meta">
+              <span>전체 이름 입력 현황</span>
+              <span id="nameProgressText">0 / 0명</span>
+            </div>
+            <div
+              id="progressTrack"
+              class="progress-track"
+              role="progressbar"
+              aria-label="전체 참가자 이름 입력 현황"
+              aria-valuemin="0"
+              aria-valuemax="0"
+              aria-valuenow="0"
+            >
+              <div id="nameProgressBar" class="progress-bar"></div>
+            </div>
+            <p class="helper-text">각 명단은 조별로 분리됩니다. 페어 그룹을 설정해도 참가자가 다른 조로 이동하지 않고, 무작위 순번만 연결됩니다.</p>
+          </div>
+        </div>
+
+        <div id="nameFields" class="grouped-name-list">
+          <div class="empty-state">각 조의 참가 인원수를 입력하면 조별 이름 입력칸이 표시됩니다.</div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="drawActionTitle">
+        <div class="panel-heading">
+          <div>
+            <h2 id="drawActionTitle">3. 추첨 및 페어 생성</h2>
+            <p>각 조의 명단을 무작위로 섞고, 설정된 페어 그룹은 같은 순번끼리 연결합니다.</p>
+          </div>
+        </div>
+
+        <div class="fairness-note">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3 4.5 6v5.5c0 4.7 3.2 7.9 7.5 9.5 4.3-1.6 7.5-4.8 7.5-9.5V6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="m8.8 12 2 2 4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>
+            각 조에 입력한 참가자만 해당 조 안에서 안전한 난수로 섞습니다.
+            같은 페어 그룹의 두 조는 무작위 결과의 동일 순번끼리 연결하며, 재추첨할 때마다 순서와 페어가 새로 정해집니다.
+          </span>
+        </div>
+
+        <div id="messageBox" class="message" role="alert" aria-live="assertive"></div>
+
+        <div class="action-bar">
+          <button id="drawButton" class="button button-primary" type="submit">추첨 및 페어 생성</button>
+          <button id="retryButton" class="button button-secondary" type="button" disabled>재추첨</button>
+        </div>
+      </section>
+    </form>
+
+    <section id="resultPanel" class="panel result-panel" aria-labelledby="resultTitle">
+      <div class="panel-heading">
+        <div>
+          <h2 id="resultTitle">추첨 및 페어 결과</h2>
+          <p id="resultDescription">각 조의 참가자를 확인하세요.</p>
+        </div>
+        <div id="roundBadge" class="summary-badge">1회차</div>
+      </div>
+
+      <div id="resultMeta" class="result-meta"></div>
+      <div id="resultGrid" class="result-grid"></div>
+    </section>
+
+    <p class="footer-note">입력 정보는 서버로 전송되지 않으며 현재 브라우저 안에서만 처리됩니다.</p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const MAX_GROUPS = 30;
+      const MAX_MEMBERS_PER_GROUP = 100;
+      const MAX_PARTICIPANTS = 500;
+      const SAMPLE_NAMES = ["A조", "B조", "C조", "D조"];
+
+      const form = document.getElementById("drawForm");
+      const totalGroupCountInput = document.getElementById("totalGroupCount");
+      const groupSettingList = document.getElementById("groupSettingList");
+      const groupSummary = document.getElementById("groupSummary");
+      const allocationPreview = document.getElementById("allocationPreview");
+      const participantTotalText = document.getElementById("participantTotalText");
+      const nameFields = document.getElementById("nameFields");
+      const nameProgressText = document.getElementById("nameProgressText");
+      const nameProgressBar = document.getElementById("nameProgressBar");
+      const progressTrack = document.getElementById("progressTrack");
+      const messageBox = document.getElementById("messageBox");
+      const retryButton = document.getElementById("retryButton");
+      const resultPanel = document.getElementById("resultPanel");
+      const resultGrid = document.getElementById("resultGrid");
+      const resultMeta = document.getElementById("resultMeta");
+      const roundBadge = document.getElementById("roundBadge");
+      const resultDescription = document.getElementById("resultDescription");
+
+      let drawRound = 0;
+      let hasDrawn = false;
+      let participantDrafts = [];
+
+      function normalizeText(value) {
+        return value.replace(/\s+/g, " ").trim();
+      }
+
+      function normalizedKey(value) {
+        return normalizeText(value).toLocaleLowerCase("ko-KR");
+      }
+
+      function clearMessage() {
+        messageBox.className = "message";
+        messageBox.textContent = "";
+      }
+
+      function showMessage(text, type = "error") {
+        messageBox.textContent = text;
+        messageBox.className = `message show ${type}`;
+      }
+
+      function invalidateResult() {
+        if (!hasDrawn) {
+          return;
+        }
+
+        hasDrawn = false;
+        drawRound = 0;
+        retryButton.disabled = true;
+        resultPanel.classList.remove("show");
+        resultGrid.replaceChildren();
+        resultMeta.replaceChildren();
+      }
+
+      function getGroupValues() {
+        return Array.from(groupSettingList.querySelectorAll(".group-setting-card"), (card) => ({
+          name: card.querySelector(".group-name-input").value,
+          capacity: card.querySelector(".group-capacity-input").value,
+          pairGroup: card.querySelector(".pair-group-input").value
+        }));
+      }
+
+      function syncParticipantDraftsFromDom() {
+        nameFields.querySelectorAll(".group-participant-card[data-group-index]").forEach((section) => {
+          const groupIndex = Number(section.dataset.groupIndex);
+          const inputs = Array.from(section.querySelectorAll(".participant-name-input"));
+
+          if (Number.isInteger(groupIndex) && inputs.length > 0) {
+            participantDrafts[groupIndex] = inputs.map((input) => input.value);
+          }
+        });
+      }
+
+      function createGroupCard(index, value = {}, maxPairGroups = 0) {
+        const card = document.createElement("div");
+        card.className = "group-setting-card";
+
+        const badge = document.createElement("div");
+        badge.className = "group-index";
+        badge.textContent = `${index + 1}조`;
+        badge.setAttribute("aria-hidden", "true");
+
+        const nameField = document.createElement("label");
+        nameField.className = "field";
+
+        const nameLabel = document.createElement("span");
+        nameLabel.className = "field-label";
+        nameLabel.textContent = "조 이름";
+
+        const nameInput = document.createElement("input");
+        nameInput.className = "group-name-input";
+        nameInput.type = "text";
+        nameInput.maxLength = 30;
+        nameInput.autocomplete = "off";
+        nameInput.placeholder = `예: ${SAMPLE_NAMES[index] || `${index + 1}조`}`;
+        nameInput.value = value.name || "";
+        nameInput.setAttribute("aria-label", `${index + 1}번째 조 이름`);
+
+        nameField.append(nameLabel, nameInput);
+
+        const capacityField = document.createElement("label");
+        capacityField.className = "field";
+
+        const capacityLabel = document.createElement("span");
+        capacityLabel.className = "field-label";
+        capacityLabel.textContent = "참가 인원수";
+
+        const capacityInput = document.createElement("input");
+        capacityInput.className = "group-capacity-input";
+        capacityInput.type = "number";
+        capacityInput.inputMode = "numeric";
+        capacityInput.min = "1";
+        capacityInput.max = String(MAX_MEMBERS_PER_GROUP);
+        capacityInput.step = "1";
+        capacityInput.placeholder = "예: 8";
+        capacityInput.value = value.capacity || "";
+        capacityInput.setAttribute("aria-label", `${index + 1}번째 조 참가 인원수`);
+
+        capacityField.append(capacityLabel, capacityInput);
+
+        const pairField = document.createElement("label");
+        pairField.className = "field pair-field";
+
+        const pairLabel = document.createElement("span");
+        pairLabel.className = "field-label";
+        pairLabel.append(document.createTextNode("페어 그룹"));
+
+        const optionalLabel = document.createElement("span");
+        optionalLabel.className = "optional-label";
+        optionalLabel.textContent = "선택";
+        pairLabel.appendChild(optionalLabel);
+
+        const pairSelect = document.createElement("select");
+        pairSelect.className = "pair-group-input";
+        pairSelect.setAttribute("aria-label", `${index + 1}번째 조 페어 그룹`);
+
+        const noPairOption = document.createElement("option");
+        noPairOption.value = "";
+        noPairOption.textContent = "미지정 (조별 추첨)";
+        pairSelect.appendChild(noPairOption);
+
+        for (let pairIndex = 1; pairIndex <= maxPairGroups; pairIndex += 1) {
+          const option = document.createElement("option");
+          option.value = `그룹${pairIndex}`;
+          option.textContent = `그룹${pairIndex}`;
+          pairSelect.appendChild(option);
+        }
+
+        const previousPairGroup = value.pairGroup || "";
+        pairSelect.value = Array.from(pairSelect.options).some(
+          (option) => option.value === previousPairGroup
+        )
+          ? previousPairGroup
+          : "";
+
+        pairField.append(pairLabel, pairSelect);
+        card.append(badge, nameField, capacityField, pairField);
+        return card;
+      }
+
+      function renderGroupCards() {
+        syncParticipantDraftsFromDom();
+        const previousValues = getGroupValues();
+        const requestedCount = Number(totalGroupCountInput.value);
+
+        if (!Number.isInteger(requestedCount) || requestedCount < 1 || requestedCount > MAX_GROUPS) {
+          updateConfigurationSummary();
+          renderNameFields();
+          return;
+        }
+
+        groupSettingList.replaceChildren();
+        const fragment = document.createDocumentFragment();
+        const maxPairGroups = Math.floor(requestedCount / 2);
+
+        for (let index = 0; index < requestedCount; index += 1) {
+          fragment.appendChild(createGroupCard(index, previousValues[index], maxPairGroups));
+        }
+
+        groupSettingList.appendChild(fragment);
+        updateConfigurationSummary();
+        renderNameFields();
+      }
+
+      function getCapacityState() {
+        const cards = Array.from(groupSettingList.querySelectorAll(".group-setting-card"));
+        const capacities = [];
+        let total = 0;
+        let allValid = cards.length > 0;
+
+        cards.forEach((card) => {
+          const value = Number(card.querySelector(".group-capacity-input").value);
+          const valid = Number.isInteger(value) && value >= 1 && value <= MAX_MEMBERS_PER_GROUP;
+          capacities.push(valid ? value : null);
+
+          if (valid) {
+            total += value;
+          } else {
+            allValid = false;
+          }
+        });
+
+        return {
+          cards,
+          capacities,
+          total,
+          allValid,
+          tooLarge: total > MAX_PARTICIPANTS
+        };
+      }
+
+      function createAllocationChip(text) {
+        const chip = document.createElement("span");
+        chip.className = "allocation-chip";
+        chip.textContent = text;
+        return chip;
+      }
+
+      function updateConfigurationSummary() {
+        const requestedCount = Number(totalGroupCountInput.value);
+        const state = getCapacityState();
+        allocationPreview.replaceChildren();
+
+        if (!Number.isInteger(requestedCount) || requestedCount < 1 || requestedCount > MAX_GROUPS) {
+          groupSummary.textContent = "조 개수 확인 필요";
+          participantTotalText.textContent = "0명";
+          return;
+        }
+
+        const selectedPairGroups = new Set(
+          state.cards
+            .map((card) => normalizeText(card.querySelector(".pair-group-input").value))
+            .filter(Boolean)
+        );
+        const pairSummary = selectedPairGroups.size > 0
+          ? ` · 페어 그룹 ${selectedPairGroups.size}개`
+          : "";
+
+        if (state.tooLarge) {
+          groupSummary.textContent = `${requestedCount}개 조 · ${state.total}명${pairSummary}`;
+          participantTotalText.textContent = `${state.total}명 (최대 초과)`;
+        } else if (state.allValid && state.cards.length === requestedCount) {
+          groupSummary.textContent = `${requestedCount}개 조 · ${state.total}명${pairSummary}`;
+          participantTotalText.textContent = `${state.total}명`;
+        } else {
+          groupSummary.textContent = `${requestedCount}개 조 · 인원 입력 중${pairSummary}`;
+          participantTotalText.textContent = state.total > 0 ? `현재 ${state.total}명` : "계산 대기";
+        }
+
+        state.cards.forEach((card, index) => {
+          const rawName = normalizeText(card.querySelector(".group-name-input").value);
+          const name = rawName || `${index + 1}번째 조`;
+          const capacity = state.capacities[index];
+          const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
+          allocationPreview.appendChild(
+            createAllocationChip(
+              `${name} · ${capacity === null ? "인원 미입력" : `${capacity}명`} · ${pairGroup || "개별 추첨"}`
+            )
+          );
+        });
+      }
+
+      function createEmptyState(text) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = text;
+        return empty;
+      }
+
+      function createGroupParticipantSection(groupIndex, groupName, capacity, pairGroup) {
+        const section = document.createElement("section");
+        section.className = "group-participant-card";
+        section.dataset.groupIndex = String(groupIndex);
+
+        const header = document.createElement("div");
+        header.className = "group-participant-header";
+
+        const titleWrap = document.createElement("div");
+        titleWrap.className = "group-title-wrap";
+
+        const kicker = document.createElement("span");
+        kicker.className = "group-kicker";
+        kicker.textContent = pairGroup
+          ? `${groupIndex + 1}번째 조 참가자 · ${pairGroup}`
+          : `${groupIndex + 1}번째 조 참가자 · 개별 추첨`;
+
+        const title = document.createElement("h3");
+        title.textContent = groupName;
+
+        titleWrap.append(kicker, title);
+
+        const meta = document.createElement("div");
+        meta.className = "group-participant-meta";
+
+        const capacityBadge = document.createElement("span");
+        capacityBadge.className = "group-capacity-badge";
+        capacityBadge.textContent = capacity === null ? "인원 미입력" : `${capacity}명`;
+
+        const progress = document.createElement("span");
+        progress.className = "group-progress-text";
+        progress.textContent = capacity === null ? "설정 필요" : `0 / ${capacity}명 입력`;
+
+        meta.append(capacityBadge, progress);
+        header.append(titleWrap, meta);
+        section.appendChild(header);
+
+        if (capacity === null) {
+          section.classList.add("incomplete");
+          const note = document.createElement("p");
+          note.className = "group-input-note";
+          note.textContent = "이 조의 참가 인원수를 입력하면 이름칸이 생성됩니다.";
+          section.appendChild(note);
+          return section;
+        }
+
+        const body = document.createElement("div");
+        body.className = "group-name-body";
+
+        const grid = document.createElement("div");
+        grid.className = "name-grid";
+        const drafts = participantDrafts[groupIndex] || [];
+
+        for (let memberIndex = 0; memberIndex < capacity; memberIndex += 1) {
+          const card = document.createElement("label");
+          card.className = "name-card";
+
+          const number = document.createElement("span");
+          number.className = "name-index";
+          number.textContent = String(memberIndex + 1);
+
+          const input = document.createElement("input");
+          input.className = "participant-name-input";
+          input.type = "text";
+          input.maxLength = 30;
+          input.autocomplete = "off";
+          input.placeholder = "이름 입력";
+          input.value = drafts[memberIndex] || "";
+          input.dataset.groupIndex = String(groupIndex);
+          input.dataset.memberIndex = String(memberIndex);
+          input.setAttribute("aria-label", `${groupName} ${memberIndex + 1}번째 참가자 이름`);
+
+          card.append(number, input);
+          grid.appendChild(card);
+        }
+
+        body.appendChild(grid);
+        section.appendChild(body);
+        return section;
+      }
+
+      function renderNameFields() {
+        syncParticipantDraftsFromDom();
+        const requestedCount = Number(totalGroupCountInput.value);
+        const state = getCapacityState();
+        nameFields.replaceChildren();
+
+        if (
+          !Number.isInteger(requestedCount) ||
+          requestedCount < 1 ||
+          requestedCount > MAX_GROUPS ||
+          state.cards.length !== requestedCount
+        ) {
+          nameFields.appendChild(createEmptyState("올바른 전체 조 개수를 입력해 주세요."));
+          updateNameProgress();
+          return;
+        }
+
+        if (state.tooLarge) {
+          nameFields.appendChild(
+            createEmptyState(`전체 참가 인원은 최대 ${MAX_PARTICIPANTS}명까지 입력할 수 있습니다.`)
+          );
+          updateNameProgress();
+          return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        state.cards.forEach((card, index) => {
+          const rawName = normalizeText(card.querySelector(".group-name-input").value);
+          const displayName = rawName || `${index + 1}번째 조 (이름 입력 전)`;
+          const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
+          fragment.appendChild(
+            createGroupParticipantSection(
+              index,
+              displayName,
+              state.capacities[index],
+              pairGroup
+            )
+          );
+        });
+
+        nameFields.appendChild(fragment);
+        updateNameProgress();
+      }
+
+      function updateNameProgress() {
+        const inputs = Array.from(nameFields.querySelectorAll(".participant-name-input"));
+        const completed = inputs.filter((input) => normalizeText(input.value) !== "").length;
+        const total = inputs.length;
+        const percentage = total === 0 ? 0 : (completed / total) * 100;
+
+        nameProgressText.textContent = `${completed} / ${total}명`;
+        nameProgressBar.style.width = `${percentage}%`;
+        progressTrack.setAttribute("aria-valuemax", String(total));
+        progressTrack.setAttribute("aria-valuenow", String(completed));
+
+        nameFields.querySelectorAll(".group-participant-card[data-group-index]").forEach((section) => {
+          const groupInputs = Array.from(section.querySelectorAll(".participant-name-input"));
+          const groupCompleted = groupInputs.filter((input) => normalizeText(input.value) !== "").length;
+          const progress = section.querySelector(".group-progress-text");
+
+          if (groupInputs.length > 0 && progress) {
+            progress.textContent = `${groupCompleted} / ${groupInputs.length}명 입력`;
+          }
+
+          section.classList.toggle(
+            "complete",
+            groupInputs.length > 0 && groupCompleted === groupInputs.length
+          );
+        });
+      }
+
+      function focusAndReport(element, message) {
+        showMessage(message);
+        element.focus({ preventScroll: true });
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        return null;
+      }
+
+      function validateAndCollect() {
+        clearMessage();
+
+        const totalGroupCount = Number(totalGroupCountInput.value);
+
+        if (!Number.isInteger(totalGroupCount) || totalGroupCount < 1 || totalGroupCount > MAX_GROUPS) {
+          return focusAndReport(
+            totalGroupCountInput,
+            `전체 조 개수는 1개부터 ${MAX_GROUPS}개까지 정수로 입력해 주세요.`
+          );
+        }
+
+        const cards = Array.from(groupSettingList.querySelectorAll(".group-setting-card"));
+
+        if (cards.length !== totalGroupCount) {
+          renderGroupCards();
+          showMessage("전체 조 개수에 맞춰 조 설정란을 다시 만들었습니다. 값을 확인해 주세요.", "warning");
+          return null;
+        }
+
+        const configurations = [];
+        const groupNameKeys = new Set();
+        const pairBuckets = new Map();
+        let totalParticipants = 0;
+
+        for (let index = 0; index < cards.length; index += 1) {
+          const nameInput = cards[index].querySelector(".group-name-input");
+          const capacityInput = cards[index].querySelector(".group-capacity-input");
+          const pairInput = cards[index].querySelector(".pair-group-input");
+          const name = normalizeText(nameInput.value);
+          const capacity = Number(capacityInput.value);
+          const pairGroup = normalizeText(pairInput.value);
+
+          if (!name) {
+            return focusAndReport(nameInput, `${index + 1}번째 조 이름을 입력해 주세요.`);
+          }
+
+          const groupKey = normalizedKey(name);
+
+          if (groupNameKeys.has(groupKey)) {
+            return focusAndReport(
+              nameInput,
+              `"${name}" 조 이름이 중복되었습니다. 서로 다른 조 이름을 입력해 주세요.`
+            );
+          }
+
+          if (!Number.isInteger(capacity) || capacity < 1 || capacity > MAX_MEMBERS_PER_GROUP) {
+            return focusAndReport(
+              capacityInput,
+              `"${name}"의 참가 인원수는 1명부터 ${MAX_MEMBERS_PER_GROUP}명까지 정수로 입력해 주세요.`
+            );
+          }
+
+          groupNameKeys.add(groupKey);
+          totalParticipants += capacity;
+          nameInput.value = name;
+
+          const configuration = {
+            index,
+            name,
+            capacity,
+            pairGroup,
+            pairGroupKey: pairGroup ? normalizedKey(pairGroup) : "",
+            capacityInput,
+            pairInput
+          };
+          configurations.push(configuration);
+
+          if (configuration.pairGroupKey) {
+            if (!pairBuckets.has(configuration.pairGroupKey)) {
+              pairBuckets.set(configuration.pairGroupKey, {
+                label: pairGroup,
+                groups: []
+              });
+            }
+            pairBuckets.get(configuration.pairGroupKey).groups.push(configuration);
+          }
+        }
+
+        if (totalParticipants > MAX_PARTICIPANTS) {
+          return focusAndReport(
+            configurations[0].capacityInput,
+            `전체 참가 인원은 최대 ${MAX_PARTICIPANTS}명까지 입력할 수 있습니다. 현재 ${totalParticipants}명입니다.`
+          );
+        }
+
+        for (const bucket of pairBuckets.values()) {
+          if (bucket.groups.length !== 2) {
+            return focusAndReport(
+              bucket.groups[0].pairInput,
+              `"${bucket.label}"은 정확히 두 조를 선택해야 합니다. 현재 ${bucket.groups.length}개 조가 선택되어 있습니다.`
+            );
+          }
+
+          const [firstGroup, secondGroup] = bucket.groups;
+          if (firstGroup.capacity !== secondGroup.capacity) {
+            return focusAndReport(
+              secondGroup.capacityInput,
+              `"${bucket.label}"으로 묶은 "${firstGroup.name}"과 "${secondGroup.name}"의 참가 인원수는 같아야 합니다.`
+            );
+          }
+        }
+
+        const groups = [];
+        const participantNameKeys = new Set();
+
+        for (const configuration of configurations) {
+          const participantSection = Array.from(
+            nameFields.querySelectorAll(".group-participant-card[data-group-index]")
+          ).find((section) => Number(section.dataset.groupIndex) === configuration.index);
+          const nameInputs = participantSection
+            ? Array.from(participantSection.querySelectorAll(".participant-name-input"))
+            : [];
+
+          if (nameInputs.length !== configuration.capacity) {
+            renderNameFields();
+            showMessage(
+              `"${configuration.name}"의 인원수에 맞춰 이름 입력칸을 다시 만들었습니다.`,
+              "warning"
+            );
+            return null;
+          }
+
+          const members = [];
+
+          for (let memberIndex = 0; memberIndex < nameInputs.length; memberIndex += 1) {
+            const participantName = normalizeText(nameInputs[memberIndex].value);
+
+            if (!participantName) {
+              return focusAndReport(
+                nameInputs[memberIndex],
+                `"${configuration.name}"의 ${memberIndex + 1}번째 참가자 이름을 입력해 주세요.`
+              );
+            }
+
+            const participantKey = normalizedKey(participantName);
+
+            if (participantNameKeys.has(participantKey)) {
+              return focusAndReport(
+                nameInputs[memberIndex],
+                `"${participantName}" 이름이 중복되었습니다. 동명이인은 번호나 별칭을 붙여 구분해 주세요.`
+              );
+            }
+
+            participantNameKeys.add(participantKey);
+            members.push(participantName);
+            nameInputs[memberIndex].value = participantName;
+          }
+
+          groups.push({
+            name: configuration.name,
+            capacity: configuration.capacity,
+            pairGroup: configuration.pairGroup,
+            members
+          });
+        }
+
+        return {
+          groups,
+          totalParticipants,
+          pairGroupCount: pairBuckets.size
+        };
+      }
+
+      function secureRandomInt(maxExclusive) {
+        if (maxExclusive <= 1) {
+          return 0;
+        }
+
+        if (window.crypto && typeof window.crypto.getRandomValues === "function") {
+          const range = 0x100000000;
+          const limit = range - (range % maxExclusive);
+          const randomValue = new Uint32Array(1);
+          let value;
+
+          do {
+            window.crypto.getRandomValues(randomValue);
+            value = randomValue[0];
+          } while (value >= limit);
+
+          return value % maxExclusive;
+        }
+
+        return Math.floor(Math.random() * maxExclusive);
+      }
+
+      function shuffledCopy(items) {
+        const copy = [...items];
+
+        for (let index = copy.length - 1; index > 0; index -= 1) {
+          const randomIndex = secureRandomInt(index + 1);
+          [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+        }
+
+        return copy;
+      }
+
+      function createMetaChip(text) {
+        const chip = document.createElement("span");
+        chip.className = "meta-chip";
+        chip.textContent = text;
+        return chip;
+      }
+
+      function createStandardResultCard(assignment) {
+        const card = document.createElement("article");
+        card.className = "result-card";
+
+        const header = document.createElement("div");
+        header.className = "result-card-header";
+
+        const title = document.createElement("h3");
+        title.textContent = assignment.name;
+
+        const count = document.createElement("span");
+        count.className = "member-count";
+        count.textContent = `${assignment.members.length}명`;
+
+        header.append(title, count);
+
+        const list = document.createElement("ol");
+        list.className = "member-list";
+        list.setAttribute("aria-label", `${assignment.name} 추첨 순서`);
+
+        assignment.members.forEach((member, index) => {
+          const item = document.createElement("li");
+
+          const memberNumber = document.createElement("span");
+          memberNumber.className = "member-number";
+          memberNumber.textContent = String(index + 1);
+
+          const memberName = document.createElement("span");
+          memberName.className = "member-name";
+          memberName.textContent = member;
+
+          item.append(memberNumber, memberName);
+          list.appendChild(item);
+        });
+
+        card.append(header, list);
+        return card;
+      }
+
+      function createPairMember(groupName, memberName) {
+        const member = document.createElement("div");
+        member.className = "pair-member";
+
+        const group = document.createElement("span");
+        group.className = "pair-group-name";
+        group.textContent = groupName;
+
+        const name = document.createElement("strong");
+        name.className = "pair-member-name";
+        name.textContent = memberName;
+
+        member.append(group, name);
+        return member;
+      }
+
+      function createPairResultCard(pairGroupName, pairedAssignments) {
+        const [firstAssignment, secondAssignment] = pairedAssignments;
+        const pairCount = firstAssignment.members.length;
+
+        const card = document.createElement("section");
+        card.className = "pair-result-card";
+
+        const header = document.createElement("div");
+        header.className = "pair-result-header";
+
+        const titleWrap = document.createElement("div");
+        titleWrap.className = "pair-result-title";
+
+        const kicker = document.createElement("span");
+        kicker.textContent = `${firstAssignment.name} × ${secondAssignment.name}`;
+
+        const title = document.createElement("h3");
+        title.textContent = `${pairGroupName} 페어 결과`;
+
+        titleWrap.append(kicker, title);
+
+        const count = document.createElement("span");
+        count.className = "member-count";
+        count.textContent = `${pairCount}페어`;
+
+        header.append(titleWrap, count);
+
+        const list = document.createElement("ol");
+        list.className = "pair-list";
+        list.setAttribute(
+          "aria-label",
+          `${pairGroupName} ${firstAssignment.name}과 ${secondAssignment.name} 페어 결과`
+        );
+
+        for (let index = 0; index < pairCount; index += 1) {
+          const item = document.createElement("li");
+          item.className = "pair-row";
+
+          const pairNumber = document.createElement("span");
+          pairNumber.className = "pair-number";
+          pairNumber.textContent = `${index + 1}번 페어`;
+
+          const link = document.createElement("span");
+          link.className = "pair-link";
+          link.textContent = "+";
+          link.setAttribute("aria-hidden", "true");
+
+          item.append(
+            pairNumber,
+            createPairMember(firstAssignment.name, firstAssignment.members[index]),
+            link,
+            createPairMember(secondAssignment.name, secondAssignment.members[index])
+          );
+          list.appendChild(item);
+        }
+
+        card.append(header, list);
+        return card;
+      }
+
+      function createResultSectionHeading(text) {
+        const heading = document.createElement("div");
+        heading.className = "result-section-heading";
+        heading.textContent = text;
+        return heading;
+      }
+
+      function renderResults(assignments, totalParticipants) {
+        resultGrid.replaceChildren();
+        resultMeta.replaceChildren();
+
+        const pairBuckets = new Map();
+        const unpairedAssignments = [];
+
+        assignments.forEach((assignment) => {
+          if (!assignment.pairGroup) {
+            unpairedAssignments.push(assignment);
+            return;
+          }
+
+          const key = normalizedKey(assignment.pairGroup);
+          if (!pairBuckets.has(key)) {
+            pairBuckets.set(key, {
+              label: assignment.pairGroup,
+              assignments: []
+            });
+          }
+          pairBuckets.get(key).assignments.push(assignment);
+        });
+
+        const pairedEntries = Array.from(pairBuckets.values());
+        const fragment = document.createDocumentFragment();
+        let totalPairs = 0;
+
+        pairedEntries.forEach((entry) => {
+          totalPairs += entry.assignments[0].members.length;
+          fragment.appendChild(createPairResultCard(entry.label, entry.assignments));
+        });
+
+        if (unpairedAssignments.length > 0) {
+          if (pairedEntries.length > 0) {
+            fragment.appendChild(createResultSectionHeading("페어 그룹 미지정 조 · 개별 추첨 결과"));
+          }
+
+          unpairedAssignments.forEach((assignment) => {
+            fragment.appendChild(createStandardResultCard(assignment));
+          });
+        }
+
+        resultGrid.appendChild(fragment);
+        resultMeta.append(
+          createMetaChip(`참가자 ${totalParticipants}명`),
+          createMetaChip(`전체 ${assignments.length}개 조`)
+        );
+
+        if (pairedEntries.length > 0) {
+          resultMeta.appendChild(
+            createMetaChip(`페어 그룹 ${pairedEntries.length}개 · 총 ${totalPairs}페어`)
+          );
+        } else {
+          resultMeta.appendChild(createMetaChip("각 조 내부에서만 무작위 추첨"));
+        }
+
+        if (unpairedAssignments.length > 0 && pairedEntries.length > 0) {
+          resultMeta.appendChild(createMetaChip(`개별 추첨 ${unpairedAssignments.length}개 조`));
+        }
+
+        roundBadge.textContent = `${drawRound}회차`;
+
+        if (pairedEntries.length > 0) {
+          resultDescription.textContent =
+            drawRound === 1
+              ? "각 조를 독립적으로 무작위 추첨한 뒤, 같은 페어 그룹의 동일 순번끼리 연결한 결과입니다."
+              : `${drawRound}번째 재추첨 및 페어 결과입니다.`;
+        } else {
+          resultDescription.textContent =
+            drawRound === 1
+              ? "페어 그룹 미지정 상태로 각 조 내부의 무작위 순서만 정한 결과입니다."
+              : `${drawRound}번째 조별 재추첨 결과입니다.`;
+        }
+
+        resultPanel.classList.add("show");
+      }
+
+      function runDraw({ isRetry = false } = {}) {
+        const data = validateAndCollect();
+
+        if (!data) {
+          return;
+        }
+
+        const assignments = data.groups.map((group) => ({
+          ...group,
+          members: shuffledCopy(group.members)
+        }));
+
+        drawRound = isRetry && hasDrawn ? drawRound + 1 : 1;
+        hasDrawn = true;
+        retryButton.disabled = false;
+        clearMessage();
+        renderResults(assignments, data.totalParticipants);
+        resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      totalGroupCountInput.addEventListener("input", () => {
+        renderGroupCards();
+        clearMessage();
+        invalidateResult();
+      });
+
+      groupSettingList.addEventListener("input", () => {
+        updateConfigurationSummary();
+        renderNameFields();
+        clearMessage();
+        invalidateResult();
+      });
+
+      nameFields.addEventListener("input", () => {
+        syncParticipantDraftsFromDom();
+        updateNameProgress();
+        clearMessage();
+        invalidateResult();
+      });
+
+      nameFields.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") {
+          return;
+        }
+
+        const inputs = Array.from(nameFields.querySelectorAll(".participant-name-input"));
+        const currentIndex = inputs.indexOf(event.target);
+
+        if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
+          event.preventDefault();
+          inputs[currentIndex + 1].focus();
+        }
+      });
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        runDraw({ isRetry: false });
+      });
+
+      retryButton.addEventListener("click", () => {
+        runDraw({ isRetry: true });
+      });
+
+      renderGroupCards();
+      updateNameProgress();
+    })();
+  </script>
+</body>
+</html>
