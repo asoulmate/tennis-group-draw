@@ -1163,6 +1163,7 @@
       let drawRound = 0;
       let hasDrawn = false;
       let participantDrafts = [];
+      let realtimeChannel = null;
 
       function normalizeText(value) {
         return value.replace(/\s+/g, " ").trim();
@@ -1986,46 +1987,75 @@
         ).join("");
       }
 
-      // 추첨 결과를 Supabase에 저장
+      // 추첨 결과를 Supabase에 신규 저장하거나 기존 결과 수정
       async function saveDrawToSupabase(assignments, totalParticipants) {
-        const shareCode = createShareCode();
+        const urlParams = new URLSearchParams(window.location.search);
+        const existingEventId = urlParams.get("event");
 
-        const { data, error } = await db
-          .from("tennis_events")
-          .insert({
-            title: "모닝스타 테니스 경기",
-            share_code: shareCode,
-            draw_round: drawRound,
-            draw_data: {
-              assignments: assignments,
-              totalParticipants: totalParticipants,
-              savedAt: new Date().toISOString()
-            }
-          })
-          .select()
-          .single();
+        const payload = {
+          title: "모닝스타 테니스 경기",
+          draw_round: drawRound,
+          draw_data: {
+            assignments: assignments,
+            totalParticipants: totalParticipants,
+            savedAt: new Date().toISOString()
+          },
+          updated_at: new Date().toISOString()
+        };
+
+        let data;
+        let error;
+
+        // 공유 주소에 event가 있으면 기존 데이터 수정
+        if (existingEventId) {
+          const response = await db
+            .from("tennis_events")
+            .update(payload)
+            .eq("id", existingEventId)
+            .select()
+            .single();
+
+          data = response.data;
+          error = response.error;
+        }
+
+        // event가 없으면 최초 데이터 생성
+        else {
+          const shareCode = createShareCode();
+
+          const response = await db
+            .from("tennis_events")
+            .insert({
+              ...payload,
+              share_code: shareCode
+            })
+            .select()
+            .single();
+
+          data = response.data;
+          error = response.error;
+        }
 
         if (error) {
           console.error("Supabase 저장 오류:", error);
           throw error;
         }
 
-        // 현재 주소에 저장된 대회 ID와 공유 코드를 추가
-        const shareUrl = new URL(window.location.href);
+        // 최초 저장일 때만 공유 주소 생성
+        if (!existingEventId) {
+          const shareUrl = new URL(window.location.href);
 
-        shareUrl.searchParams.set("event", data.id);
-        shareUrl.searchParams.set("code", data.share_code);
+          shareUrl.searchParams.set("event", data.id);
+          shareUrl.searchParams.set("code", data.share_code);
 
-        window.history.replaceState(
-          {},
-          "",
-          shareUrl.toString()
-        );
+          window.history.replaceState(
+            {},
+            "",
+            shareUrl.toString()
+          );
+        }
 
-        return {
-          ...data,
-          shareUrl: shareUrl.toString()
-        };
+        return data;
       }
 
 
@@ -2102,6 +2132,63 @@
         });
       }
 
+      // 현재 공유 대회의 변경사항 실시간 구독
+      function subscribeSharedEvent() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get("event");
+
+        // 공유 링크가 아니면 구독하지 않음
+        if (!eventId) {
+          return null;
+        }
+
+        const channel = db
+          .channel(`tennis-event-${eventId}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "UPDATE",
+              schema: "public",
+              table: "tennis_events",
+              filter: `id=eq.${eventId}`
+            },
+            (payload) => {
+              console.log("실시간 변경 수신:", payload);
+
+              const updatedEvent = payload.new;
+
+              const assignments =
+                updatedEvent.draw_data?.assignments || [];
+
+              const totalParticipants =
+                updatedEvent.draw_data?.totalParticipants || 0;
+
+              if (assignments.length === 0) {
+                return;
+              }
+
+              drawRound = updatedEvent.draw_round || 1;
+              hasDrawn = true;
+              retryButton.disabled = false;
+
+              renderResults(
+                assignments,
+                totalParticipants
+              );
+
+              showMessage(
+                "다른 사용자가 추첨 결과를 변경했습니다. 화면이 자동 갱신되었습니다.",
+                "warning"
+              );
+            }
+          )
+          .subscribe((status) => {
+            console.log("Supabase 실시간 연결 상태:", status);
+          });
+
+        return channel;
+      }
+
       async function runDraw({ isRetry = false } = {}) {
         const data = validateAndCollect();
 
@@ -2125,6 +2212,11 @@
             assignments,
             data.totalParticipants
           );
+
+          // 최초 저장 후 실시간 구독 시작
+          if (!realtimeChannel) {
+            realtimeChannel = subscribeSharedEvent();
+          }
 
           showMessage(
             `추첨 결과가 저장되었습니다. 현재 웹페이지 주소를 복사해서 공유하세요. 공유 코드: ${savedEvent.share_code}`,
@@ -2191,7 +2283,10 @@
 
       renderGroupCards();
       updateNameProgress();
-      loadSharedEvent();
+
+      loadSharedEvent().then(() => {
+        realtimeChannel = subscribeSharedEvent();
+      });
     })();
   </script>
 </body>
