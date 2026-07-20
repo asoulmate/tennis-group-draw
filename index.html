@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#174f46" />
-  <title>테니스 조 추첨 · 페어 생성</title>
+  <title>테니스 조 추첨 · 경기 생성</title>
   <style>
     :root {
       --bg: #f3f7f5;
@@ -993,6 +993,112 @@
       font-weight: 900;
     }
 
+
+    .page-switcher {
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px;
+      margin-bottom: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(201, 223, 215, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 10px 28px rgba(28, 65, 55, 0.1);
+      backdrop-filter: blur(12px);
+    }
+
+    .page-switcher a {
+      display: grid;
+      place-items: center;
+      min-height: 44px;
+      padding: 9px 14px;
+      color: var(--primary);
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      font-size: 0.9rem;
+      font-weight: 900;
+      transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .page-switcher a:hover {
+      background: var(--surface-soft);
+    }
+
+    .page-switcher a.active {
+      color: #ffffff;
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .page-switcher a.is-disabled {
+      color: #93a09b;
+      background: #f1f4f3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .share-panel {
+      display: grid;
+      gap: 12px;
+      padding: 17px;
+      margin: 18px 0 22px;
+      background: linear-gradient(135deg, #eef8f4, #fbfefd);
+      border: 1px solid #c9dfd7;
+      border-radius: 16px;
+    }
+
+    .share-panel[hidden] {
+      display: none;
+    }
+
+    .share-panel-copy strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #29483f;
+      font-size: 1rem;
+    }
+
+    .share-panel-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .share-url-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 9px;
+      align-items: stretch;
+    }
+
+    .share-url-row input {
+      min-width: 0;
+      background: #ffffff;
+    }
+
+    .button-link {
+      display: grid;
+      place-items: center;
+      min-height: 46px;
+      padding: 10px 15px;
+      color: var(--primary);
+      background: #ffffff;
+      border: 1px solid #9cc5b8;
+      border-radius: 11px;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .button-link:hover {
+      background: var(--surface-soft);
+    }
+
     .game-schedule-heading {
       margin-top: 28px;
       margin-bottom: 14px;
@@ -1229,6 +1335,10 @@
         grid-column: 2;
       }
 
+      .share-url-row {
+        grid-template-columns: 1fr;
+      }
+
       .game-schedule-header {
         align-items: flex-start;
         padding: 14px;
@@ -1283,6 +1393,10 @@
 
 <body>
   <main class="app-shell">
+    <nav class="page-switcher" aria-label="페이지 이동">
+      <a id="mainPageLink" class="active" href="./index.html" aria-current="page">1. 추첨·대진 생성</a>
+      <a id="scorePageLink" class="is-disabled" href="#" aria-disabled="true">2. 경기 스코어</a>
+    </nav>
     <header class="hero">
       <p class="eyebrow">Tennis Group Draw</p>
       <h1>테니스 조 추첨</h1>
@@ -1441,12 +1555,24 @@
       </div>
 
       <div id="resultMeta" class="result-meta"></div>
+
+      <div id="sharePanel" class="share-panel" hidden>
+        <div class="share-panel-copy">
+          <strong>사용자 공유 주소 · 2페이지 바로 열기</strong>
+          <p>아래 주소를 공유하면 사용자는 추첨 설정 화면이 아닌 경기 스코어 입력 페이지로 바로 접속합니다.</p>
+        </div>
+        <div class="share-url-row">
+          <input id="shareUrlInput" type="text" readonly aria-label="사용자 공유 주소" />
+          <button id="copyShareUrlButton" class="button button-secondary" type="button">공유 주소 복사</button>
+          <a id="openScorePageButton" class="button-link" href="#">2페이지 열기</a>
+        </div>
+      </div>
       <div id="resultGrid" class="result-grid"></div>
       <div class="result-section-heading game-schedule-heading">경기 대진표</div>
       <div id="gameScheduleGrid" class="game-schedule-grid"></div>
     </section>
 
-    <p class="footer-note">추첨 순서와 경기 대진은 공유 및 실시간 갱신을 위해 서버에 함께 저장됩니다.</p>
+    <p class="footer-note">1페이지에서 추첨·대진을 생성하고, 공유 사용자는 2페이지에서 경기별 스코어를 입력합니다.</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1563,6 +1689,12 @@
       const resultMeta = document.getElementById("resultMeta");
       const roundBadge = document.getElementById("roundBadge");
       const resultDescription = document.getElementById("resultDescription");
+      const mainPageLink = document.getElementById("mainPageLink");
+      const scorePageLink = document.getElementById("scorePageLink");
+      const sharePanel = document.getElementById("sharePanel");
+      const shareUrlInput = document.getElementById("shareUrlInput");
+      const copyShareUrlButton = document.getElementById("copyShareUrlButton");
+      const openScorePageButton = document.getElementById("openScorePageButton");
       const gameScheduleGrid = document.getElementById("gameScheduleGrid");
 
       let drawRound = 0;
@@ -1577,6 +1709,58 @@
 
       function normalizedKey(value) {
         return normalizeText(value).toLocaleLowerCase("ko-KR");
+      }
+
+      function buildSiblingPageUrl(fileName, eventId, shareCode) {
+        const url = new URL(window.location.href);
+        const pathParts = url.pathname.split("/");
+        pathParts[pathParts.length - 1] = fileName;
+        url.pathname = pathParts.join("/");
+        url.search = "";
+        url.hash = "";
+
+        if (eventId) {
+          url.searchParams.set("event", String(eventId));
+        }
+        if (shareCode) {
+          url.searchParams.set("code", String(shareCode));
+        }
+
+        return url.toString();
+      }
+
+      function updatePageLinks(eventId, shareCode) {
+        const mainUrl = buildSiblingPageUrl("index.html", eventId, shareCode);
+        const scoreUrl = buildSiblingPageUrl("scores.html", eventId, shareCode);
+
+        mainPageLink.href = mainUrl;
+        scorePageLink.href = scoreUrl;
+        scorePageLink.classList.remove("is-disabled");
+        scorePageLink.removeAttribute("aria-disabled");
+
+        shareUrlInput.value = scoreUrl;
+        openScorePageButton.href = scoreUrl;
+        sharePanel.hidden = false;
+      }
+
+      async function copyScorePageUrl() {
+        const value = shareUrlInput.value;
+        if (!value) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(value);
+          showMessage("2페이지 사용자 공유 주소를 복사했습니다.", "warning");
+        } catch (error) {
+          shareUrlInput.focus();
+          shareUrlInput.select();
+          const copied = document.execCommand("copy");
+          showMessage(
+            copied ? "2페이지 사용자 공유 주소를 복사했습니다." : "주소를 선택했습니다. 직접 복사해 주세요.",
+            "warning"
+          );
+        }
       }
 
       function clearMessage() {
@@ -3147,6 +3331,7 @@
           );
         }
 
+        updatePageLinks(data.id, data.share_code);
         return data;
       }
 
@@ -3211,6 +3396,7 @@
           return;
         }
 
+        updatePageLinks(data.id, data.share_code);
         drawRound = data.draw_round || 1;
         hasDrawn = true;
         retryButton.disabled = !currentAdmin;
@@ -3342,7 +3528,7 @@
           }
 
           showMessage(
-            `추첨 결과가 저장되었습니다. 현재 웹페이지 주소를 복사해서 공유하세요. 공유 코드: ${savedEvent.share_code}`,
+            `추첨 결과가 저장되었습니다. 아래 사용자 공유 주소를 전달하면 2페이지로 바로 접속합니다. 공유 코드: ${savedEvent.share_code}`,
             "warning"
           );
 
@@ -3441,6 +3627,10 @@
       // 관리자 로그인 버튼 클릭
       adminLoginButton.addEventListener("click", () => {
         loginAdmin();
+      });
+
+      copyShareUrlButton.addEventListener("click", () => {
+        copyScorePageUrl();
       });
 
 
