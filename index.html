@@ -1134,9 +1134,19 @@
     <p class="footer-note">입력 정보는 서버로 전송되지 않으며 현재 브라우저 안에서만 처리됩니다.</p>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  
+
   <script>
     (() => {
       "use strict";
+
+      const SUPABASE_URL = "https://mktdpjkcumyamweynqmp.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_lwcj15eyh93kU0Jq2kT8Ng_MaDE7BUN";
+
+      const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
       const MAX_GROUPS = 30;
       const MAX_MEMBERS_PER_GROUP = 100;
@@ -1974,7 +1984,48 @@
         resultPanel.classList.add("show");
       }
 
-      function runDraw({ isRetry = false } = {}) {
+      // Supabase 공유 코드 생성
+      function createShareCode() {
+        const characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        const randomValues = new Uint32Array(8);
+
+        window.crypto.getRandomValues(randomValues);
+
+        return Array.from(
+          randomValues,
+          (value) => characters[value % characters.length]
+        ).join("");
+      }
+
+
+      // 추첨 결과를 Supabase에 저장
+      async function saveDrawToSupabase(assignments, totalParticipants) {
+        const shareCode = createShareCode();
+
+        const { data, error } = await db
+          .from("tennis_events")
+          .insert({
+            title: "모닝스타 테니스 경기",
+            share_code: shareCode,
+            draw_round: drawRound,
+            draw_data: {
+              assignments: assignments,
+              totalParticipants: totalParticipants,
+              savedAt: new Date().toISOString()
+            }
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Supabase 저장 오류:", error);
+          throw error;
+        }
+
+        return data;
+      }
+
+      async function runDraw({ isRetry = false } = {}) {
         const data = validateAndCollect();
 
         if (!data) {
@@ -1991,7 +2042,31 @@
         retryButton.disabled = false;
         clearMessage();
         renderResults(assignments, data.totalParticipants);
-        resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        
+        try {
+          const savedEvent = await saveDrawToSupabase(
+            assignments,
+            data.totalParticipants
+          );
+
+          showMessage(
+            `추첨 결과가 서버에 저장되었습니다. 공유 코드: ${savedEvent.share_code}`,
+            "warning"
+          );
+
+          console.log("저장된 대회:", savedEvent);
+        } catch (error) {
+          showMessage(
+            `추첨은 완료됐지만 서버 저장에 실패했습니다: ${error.message}`,
+            "error"
+          );
+        }
+
+        resultPanel.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+                        
       }
 
       totalGroupCountInput.addEventListener("input", () => {
