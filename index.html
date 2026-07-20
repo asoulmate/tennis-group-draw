@@ -340,11 +340,27 @@
       white-space: nowrap;
     }
 
-    .capacity-field.pair-linked .capacity-pair-badge {
+    .capacity-field.pair-linked .capacity-pair-badge,
+    .capacity-field.pair-pending .capacity-pair-badge {
       display: inline-flex;
       color: var(--pair-text);
       background: var(--pair-soft);
       border-color: var(--pair-border);
+    }
+
+    .capacity-field.pair-pending .capacity-pair-badge {
+      color: #8a4b08;
+      background: #fff6e8;
+      border-color: #e7bd7a;
+    }
+
+    .group-capacity-input.pair-pending:disabled {
+      color: #7d8985;
+      background: #eef2f0;
+      border-color: #cfd9d5;
+      box-shadow: none;
+      cursor: not-allowed;
+      opacity: 1;
     }
 
     .group-capacity-input.pair-linked {
@@ -1839,12 +1855,34 @@
         });
       }
 
+      function applyPendingPairStyle(entry, pairLabel) {
+        const palette = getPairPalette(pairLabel);
+        const { card, capacityField, capacityInput, capacityPairBadge } = entry;
+
+        capacityField.classList.add("pair-pending");
+        capacityInput.classList.add("pair-pending");
+        capacityInput.disabled = true;
+        capacityInput.min = "4";
+        capacityInput.max = "8";
+        capacityInput.placeholder = "상대 조 선택 필요";
+        capacityInput.title = `${pairLabel}을 선택한 다른 조가 있어야 참가 인원수를 입력할 수 있습니다.`;
+        capacityPairBadge.textContent = `${pairLabel} 상대 조 필요`;
+
+        [card, capacityField, capacityInput].forEach((element) => {
+          element.style.setProperty("--pair-soft", palette.soft);
+          element.style.setProperty("--pair-border", palette.border);
+          element.style.setProperty("--pair-text", palette.text);
+          element.style.setProperty("--pair-ring", palette.ring);
+        });
+      }
+
       function applyCompletedPairStyle(entry, pairLabel) {
         const palette = getPairPalette(pairLabel);
         const { card, capacityField, capacityInput, capacityPairBadge } = entry;
 
         capacityField.classList.add("pair-linked");
         capacityInput.classList.add("pair-linked");
+        capacityInput.disabled = false;
         capacityInput.min = "4";
         capacityInput.max = "8";
         capacityInput.placeholder = "4~8";
@@ -1933,8 +1971,9 @@
           const capacityPairBadge = card.querySelector(".capacity-pair-badge");
           const seedSelect = card.querySelector(".seed-mode-input");
 
-          capacityField.classList.remove("pair-linked");
-          capacityInput.classList.remove("pair-linked");
+          capacityField.classList.remove("pair-linked", "pair-pending");
+          capacityInput.classList.remove("pair-linked", "pair-pending");
+          capacityInput.disabled = false;
           capacityInput.min = "5";
           capacityInput.max = String(MAX_MEMBERS_PER_GROUP);
           capacityInput.placeholder = "5~16";
@@ -1971,6 +2010,11 @@
         updatePairGroupSelectAvailability(cards, pairBuckets);
 
         pairBuckets.forEach((bucket) => {
+          if (bucket.entries.length === 1) {
+            applyPendingPairStyle(bucket.entries[0], bucket.label);
+            return;
+          }
+
           if (bucket.entries.length !== 2) {
             return;
           }
@@ -1993,7 +2037,7 @@
           const seedUnsupported = capacity === 5;
           const minimum = Number(capacityInput.min);
           const maximum = Number(capacityInput.max);
-          const basicCapacityInvalid = String(capacityInput.value).trim() !== "" && (
+          const basicCapacityInvalid = !capacityInput.disabled && String(capacityInput.value).trim() !== "" && (
             !Number.isInteger(capacity) || capacity < minimum || capacity > maximum
           );
 
@@ -2030,7 +2074,7 @@
           const value = Number(input.value);
           const minimum = Number(input.min || 5);
           const maximum = Number(input.max || MAX_MEMBERS_PER_GROUP);
-          const valid = Number.isInteger(value) && value >= minimum && value <= maximum;
+          const valid = !input.disabled && Number.isInteger(value) && value >= minimum && value <= maximum;
           capacities.push(valid ? value : null);
 
           if (valid) {
@@ -2093,9 +2137,13 @@
           const capacity = state.capacities[index];
           const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
           const seeded = card.querySelector(".seed-mode-input").value === "seeded";
+          const capacityText = card.querySelector(".group-capacity-input").disabled
+            ? "상대 조 선택 대기"
+            : (capacity === null ? "인원 미입력" : `${capacity}명`);
+
           allocationPreview.appendChild(
             createAllocationChip(
-              `${name} · ${capacity === null ? "인원 미입력" : `${capacity}명`} · ${pairGroup || "AA 개별"}${seeded ? " · 시드" : ""}`
+              `${name} · ${capacityText} · ${pairGroup || "AA 개별"}${seeded ? " · 시드" : ""}`
             )
           );
         });
@@ -2306,6 +2354,33 @@
           renderGroupCards();
           showMessage("전체 조 개수에 맞춰 조 설정란을 다시 만들었습니다. 값을 확인해 주세요.", "warning");
           return null;
+        }
+
+        const selectedPairBuckets = new Map();
+        cards.forEach((card) => {
+          const pairInput = card.querySelector(".pair-group-input");
+          const pairGroup = normalizeText(pairInput.value);
+          if (!pairGroup) {
+            return;
+          }
+
+          const pairKey = normalizedKey(pairGroup);
+          if (!selectedPairBuckets.has(pairKey)) {
+            selectedPairBuckets.set(pairKey, {
+              label: pairGroup,
+              pairInputs: []
+            });
+          }
+          selectedPairBuckets.get(pairKey).pairInputs.push(pairInput);
+        });
+
+        for (const bucket of selectedPairBuckets.values()) {
+          if (bucket.pairInputs.length === 1) {
+            return focusAndReport(
+              bucket.pairInputs[0],
+              `"${bucket.label}" AB 방식은 동일한 페어 그룹을 선택한 조가 정확히 2개 있어야 합니다. 다른 조에서도 같은 그룹을 선택해 주세요.`
+            );
+          }
         }
 
         const configurations = [];
