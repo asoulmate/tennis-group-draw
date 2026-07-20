@@ -277,8 +277,8 @@
       border: 1px solid #dbe7e2;
       border-radius: 10px;
     }
-    .player-position { color: var(--muted); font-size: 0.82rem; font-weight: 900; }
-    .player-name { overflow-wrap: anywhere; font-size: clamp(1rem, 1.8vw, 1.16rem); line-height: 1.25; font-weight: 950; }
+    .player-position { color: var(--muted); font-size: 0.96rem; font-weight: 900; }
+    .player-name { overflow-wrap: anywhere; font-size: 1.38rem; line-height: 1.2; font-weight: 950; letter-spacing: -0.02em; }
 
     .score-control {
       display: grid;
@@ -405,6 +405,8 @@
       .score-summary { grid-template-columns: 1fr; }
       .score-game-row { grid-template-columns: 42px minmax(0,1fr); padding: 8px; }
       .team-box { grid-template-columns: 1fr; }
+      .player-name { font-size: 1.28rem; }
+      .player-position { font-size: 0.9rem; }
       .score-actions { grid-template-columns: 1fr; }
       .page-switcher a { padding-inline: 5px; font-size: 0.76rem; }
     }
@@ -421,7 +423,7 @@
     <header class="hero">
       <p class="eyebrow">Tennis Match Score</p>
       <h1>경기 스코어 입력</h1>
-      <p>각 경기의 양 팀 스코어를 0~6 범위에서 입력하고 확정하세요. 일반 사용자는 확정 후 수정할 수 없으며, 대회 관리자만 수정하거나 초기화할 수 있습니다.</p>
+      <p>각 경기의 양 팀 스코어를 입력하세요. 승리 팀은 반드시 6점이어야 하며 6:6은 허용되지 않습니다. 일반 사용자는 확정 후 수정할 수 없으며, 대회 관리자만 수정하거나 초기화할 수 있습니다.</p>
     </header>
 
     <div class="layout">
@@ -785,7 +787,7 @@
 
         const state = createElement("div", "score-state");
         state.append(
-          createElement("span", saved ? "confirmed-label" : "", saved ? "확정된 스코어" : "입력 후 확정하면 잠깁니다."),
+          createElement("span", saved ? "confirmed-label" : "", saved ? "확정된 스코어" : "한쪽 팀이 반드시 6점이어야 합니다."),
           createElement("span", "", saved ? formatDate(saved.confirmed_at || saved.updated_at) : "")
         );
 
@@ -822,12 +824,30 @@
       }
 
       function collectScores(row) {
-        const team1 = Number(row.querySelector(".team1-score").value);
-        const team2 = Number(row.querySelector(".team2-score").value);
+        const team1Input = row.querySelector(".team1-score");
+        const team2Input = row.querySelector(".team2-score");
+        const team1 = Number(team1Input.value);
+        const team2 = Number(team2Input.value);
+
         if (!Number.isInteger(team1) || !Number.isInteger(team2) || team1 < 0 || team2 < 0 || team1 > 6 || team2 > 6) {
           showMessage("양 팀 스코어를 0~6 사이의 정수로 입력해 주세요.", "error");
           return null;
         }
+
+        const validFinishedScore =
+          (team1 === 6 && team2 >= 0 && team2 <= 5) ||
+          (team2 === 6 && team1 >= 0 && team1 <= 5);
+
+        if (!validFinishedScore) {
+          showMessage("경기 종료 스코어만 확정할 수 있습니다. 한쪽 팀은 반드시 6점이어야 하며 6:6은 입력할 수 없습니다.", "error");
+          if (team1 !== 6 && team2 !== 6) {
+            team1Input.focus();
+          } else if (team1 === 6 && team2 === 6) {
+            team2Input.focus();
+          }
+          return null;
+        }
+
         return { team1, team2 };
       }
 
