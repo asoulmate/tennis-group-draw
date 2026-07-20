@@ -57,7 +57,7 @@
       top: 10px;
       z-index: 20;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       padding: 8px;
       margin-bottom: 18px;
@@ -231,13 +231,13 @@
       background: linear-gradient(135deg, #edf7f3, #fbfefd);
       border-bottom: 1px solid #d6e7e1;
     }
-    .schedule-header span { display: block; color: var(--muted); font-size: 0.76rem; font-weight: 800; }
-    .schedule-header h3 { margin: 2px 0 0; font-size: 1.08rem; }
+    .schedule-header span { display: block; color: var(--muted); font-size: 0.9rem; font-weight: 850; }
+    .schedule-header h3 { margin: 2px 0 0; font-size: 1.28rem; font-weight: 950; }
 
     .game-list { display: grid; gap: 10px; margin: 0; padding: 13px; list-style: none; }
     .score-game-row {
       display: grid;
-      grid-template-columns: 64px minmax(0,1fr) minmax(190px,240px) minmax(0,1fr);
+      grid-template-columns: 82px minmax(0,1fr) minmax(210px,260px) minmax(0,1fr);
       gap: 10px;
       align-items: stretch;
       padding: 10px;
@@ -251,13 +251,13 @@
     .game-number {
       display: grid;
       place-items: center;
-      min-height: 72px;
+      min-height: 86px;
       padding: 6px;
       color: var(--primary);
       background: var(--primary-soft);
       border-radius: 10px;
-      font-size: 0.78rem;
-      font-weight: 900;
+      font-size: 0.98rem;
+      font-weight: 950;
       text-align: center;
     }
 
@@ -272,13 +272,13 @@
       display: grid;
       align-content: center;
       min-width: 0;
-      padding: 8px 9px;
+      padding: 11px 12px;
       background: #fff;
       border: 1px solid #dbe7e2;
       border-radius: 10px;
     }
-    .player-position { color: var(--muted); font-size: 0.67rem; font-weight: 850; }
-    .player-name { overflow-wrap: anywhere; font-size: 0.88rem; font-weight: 900; }
+    .player-position { color: var(--muted); font-size: 0.82rem; font-weight: 900; }
+    .player-name { overflow-wrap: anywhere; font-size: clamp(1rem, 1.8vw, 1.16rem); line-height: 1.25; font-weight: 950; }
 
     .score-control {
       display: grid;
@@ -303,12 +303,12 @@
       border: 1px solid #cbd9d3;
       border-radius: 9px;
       outline: none;
-      font-size: 1.1rem;
+      font-size: 1.38rem;
       font-weight: 950;
     }
     .score-control input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(23,108,91,0.12); }
     .score-control input:disabled { color: #29483f; background: #eef4f1; opacity: 1; }
-    .score-separator { color: var(--muted); text-align: center; font-weight: 950; }
+    .score-separator { color: var(--muted); text-align: center; font-size: 1.25rem; font-weight: 950; }
 
     .score-actions {
       grid-column: 1 / -1;
@@ -406,7 +406,7 @@
       .score-game-row { grid-template-columns: 42px minmax(0,1fr); padding: 8px; }
       .team-box { grid-template-columns: 1fr; }
       .score-actions { grid-template-columns: 1fr; }
-      .page-switcher a { padding-inline: 8px; font-size: 0.82rem; }
+      .page-switcher a { padding-inline: 5px; font-size: 0.76rem; }
     }
   </style>
 </head>
@@ -415,12 +415,13 @@
     <nav class="page-switcher" aria-label="페이지 이동">
       <a id="mainPageLink" href="./index.html">1. 추첨·대진 생성</a>
       <a id="scorePageLink" class="active" href="./scores.html" aria-current="page">2. 경기 스코어</a>
+      <a id="resultsPageLink" href="./results.html">3. 경기 결과</a>
     </nav>
 
     <header class="hero">
       <p class="eyebrow">Tennis Match Score</p>
       <h1>경기 스코어 입력</h1>
-      <p>각 경기의 양 팀 스코어를 입력하고 확정하세요. 일반 사용자는 확정 후 수정할 수 없으며, 대회 관리자만 수정하거나 초기화할 수 있습니다.</p>
+      <p>각 경기의 양 팀 스코어를 0~6 범위에서 입력하고 확정하세요. 일반 사용자는 확정 후 수정할 수 없으며, 대회 관리자만 수정하거나 초기화할 수 있습니다.</p>
     </header>
 
     <div class="layout">
@@ -440,7 +441,7 @@
         <div class="panel-heading">
           <div>
             <h2 id="scoreTitle">경기별 스코어</h2>
-            <p>스코어 두 칸을 입력한 뒤 확정 버튼을 누르면 즉시 잠깁니다.</p>
+            <p>양 팀 스코어를 0~6 범위에서 입력한 뒤 확정 버튼을 누르면 즉시 잠깁니다.</p>
           </div>
         </div>
         <div id="scoreSummary" class="score-summary"></div>
@@ -491,6 +492,7 @@
       const scheduleList = document.getElementById("scheduleList");
       const mainPageLink = document.getElementById("mainPageLink");
       const scorePageLink = document.getElementById("scorePageLink");
+      const resultsPageLink = document.getElementById("resultsPageLink");
       const adminLoginPanel = document.getElementById("adminLoginPanel");
       const adminEmail = document.getElementById("adminEmail");
       const adminPassword = document.getElementById("adminPassword");
@@ -524,6 +526,7 @@
 
       mainPageLink.href = buildSiblingPageUrl("index.html");
       scorePageLink.href = buildSiblingPageUrl("scores.html");
+      resultsPageLink.href = buildSiblingPageUrl("results.html");
 
       function clearMessage() {
         messageBox.className = "message";
@@ -747,7 +750,7 @@
         input1.type = "number";
         input1.inputMode = "numeric";
         input1.min = "0";
-        input1.max = "99";
+        input1.max = "6";
         input1.step = "1";
         input1.placeholder = "0";
         input1.setAttribute("aria-label", `${schedule.title} 게임 ${game.gameNumber} 1팀 점수`);
@@ -821,8 +824,8 @@
       function collectScores(row) {
         const team1 = Number(row.querySelector(".team1-score").value);
         const team2 = Number(row.querySelector(".team2-score").value);
-        if (!Number.isInteger(team1) || !Number.isInteger(team2) || team1 < 0 || team2 < 0 || team1 > 99 || team2 > 99) {
-          showMessage("양 팀 스코어를 0~99 사이의 정수로 입력해 주세요.", "error");
+        if (!Number.isInteger(team1) || !Number.isInteger(team2) || team1 < 0 || team2 < 0 || team1 > 6 || team2 > 6) {
+          showMessage("양 팀 스코어를 0~6 사이의 정수로 입력해 주세요.", "error");
           return null;
         }
         return { team1, team2 };
@@ -953,6 +956,19 @@
           })
           .subscribe();
       }
+
+      scheduleList.addEventListener("input", (event) => {
+        const input = event.target.closest(".team1-score, .team2-score");
+        if (!input || input.value === "") return;
+
+        const numeric = Number(input.value);
+        if (!Number.isFinite(numeric)) {
+          input.value = "";
+          return;
+        }
+
+        input.value = String(Math.min(6, Math.max(0, Math.trunc(numeric))));
+      });
 
       scheduleList.addEventListener("click", async (event) => {
         const button = event.target.closest("button[data-action]");

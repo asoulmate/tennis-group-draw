@@ -295,8 +295,9 @@
       color: var(--primary);
       background: var(--primary-soft);
       border-radius: 13px;
-      font-size: 0.9rem;
-      font-weight: 900;
+      font-size: clamp(1rem, 1.8vw, 1.16rem);
+      font-weight: 950;
+      line-height: 1.25;
     }
 
     .pairing-guide {
@@ -560,8 +561,9 @@
     .group-participant-header h3 {
       overflow-wrap: anywhere;
       margin: 0;
-      font-size: 1.08rem;
-      letter-spacing: -0.02em;
+      font-size: 1.28rem;
+      font-weight: 950;
+      letter-spacing: -0.025em;
     }
 
     .group-participant-meta {
@@ -577,7 +579,7 @@
       background: #ffffff;
       border: 1px solid #b9d9ce;
       border-radius: 999px;
-      font-size: 0.79rem;
+      font-size: 0.9rem;
       font-weight: 900;
     }
 
@@ -820,8 +822,9 @@
     .result-card-header h3 {
       overflow-wrap: anywhere;
       margin: 0;
-      font-size: 1.05rem;
-      letter-spacing: -0.015em;
+      font-size: 1.28rem;
+      font-weight: 950;
+      letter-spacing: -0.025em;
     }
 
     .member-count {
@@ -831,7 +834,7 @@
       background: #ffffff;
       border: 1px solid #b9d9ce;
       border-radius: 999px;
-      font-size: 0.79rem;
+      font-size: 0.9rem;
       font-weight: 900;
     }
 
@@ -845,10 +848,11 @@
 
     .member-list li {
       display: grid;
-      grid-template-columns: 28px minmax(0, 1fr);
-      gap: 8px;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 12px;
       align-items: center;
-      padding: 10px 0;
+      min-height: 58px;
+      padding: 12px 0;
       border-bottom: 1px solid #edf2f0;
     }
 
@@ -859,18 +863,20 @@
     .member-number {
       display: grid;
       place-items: center;
-      width: 27px;
-      height: 27px;
+      width: 40px;
+      height: 40px;
       color: var(--muted);
       background: #f0f4f2;
       border-radius: 8px;
-      font-size: 0.75rem;
-      font-weight: 900;
+      font-size: 1.05rem;
+      font-weight: 950;
     }
 
     .member-name {
       overflow-wrap: anywhere;
-      font-weight: 750;
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      font-weight: 900;
+      line-height: 1.25;
     }
 
     .result-section-heading {
@@ -918,8 +924,8 @@
       display: block;
       margin-bottom: 2px;
       color: var(--muted);
-      font-size: 0.78rem;
-      font-weight: 800;
+      font-size: 0.9rem;
+      font-weight: 850;
     }
 
     .pair-result-title h3 {
@@ -956,8 +962,8 @@
       color: var(--primary);
       background: var(--primary-soft);
       border-radius: 10px;
-      font-size: 0.78rem;
-      font-weight: 900;
+      font-size: 0.95rem;
+      font-weight: 950;
       text-align: center;
     }
 
@@ -999,7 +1005,7 @@
       top: 10px;
       z-index: 20;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       padding: 8px;
       margin-bottom: 18px;
@@ -1070,7 +1076,7 @@
 
     .share-url-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto auto;
+      grid-template-columns: minmax(0, 1fr) auto auto auto;
       gap: 9px;
       align-items: stretch;
     }
@@ -1133,17 +1139,18 @@
 
     .game-schedule-title span {
       display: block;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
       color: var(--muted);
-      font-size: 0.78rem;
-      font-weight: 800;
+      font-size: 0.9rem;
+      font-weight: 850;
     }
 
     .game-schedule-title h3 {
       overflow-wrap: anywhere;
       margin: 0;
-      font-size: 1.08rem;
-      letter-spacing: -0.02em;
+      font-size: 1.28rem;
+      font-weight: 950;
+      letter-spacing: -0.025em;
     }
 
     .game-list {
@@ -1156,7 +1163,7 @@
 
     .game-row {
       display: grid;
-      grid-template-columns: 64px minmax(0, 1fr) 42px minmax(0, 1fr);
+      grid-template-columns: 82px minmax(0, 1fr) 48px minmax(0, 1fr);
       gap: 10px;
       align-items: stretch;
       padding: 10px;
@@ -1168,13 +1175,13 @@
     .game-number {
       display: grid;
       place-items: center;
-      min-height: 54px;
-      padding: 6px;
+      min-height: 68px;
+      padding: 8px;
       color: var(--primary);
       background: var(--primary-soft);
       border-radius: 10px;
-      font-size: 0.78rem;
-      font-weight: 900;
+      font-size: 0.95rem;
+      font-weight: 950;
       text-align: center;
     }
 
@@ -1190,7 +1197,7 @@
       display: grid;
       align-content: center;
       min-width: 0;
-      padding: 8px 9px;
+      padding: 11px 12px;
       background: #ffffff;
       border: 1px solid #dbe7e2;
       border-radius: 10px;
@@ -1198,21 +1205,22 @@
 
     .game-player-position {
       color: var(--muted);
-      font-size: 0.68rem;
-      font-weight: 850;
+      font-size: 0.82rem;
+      font-weight: 900;
     }
 
     .game-player-name {
       overflow-wrap: anywhere;
-      font-size: 0.9rem;
-      font-weight: 900;
+      font-size: clamp(1rem, 1.8vw, 1.16rem);
+      font-weight: 950;
+      line-height: 1.25;
     }
 
     .game-vs {
       display: grid;
       place-items: center;
       color: var(--primary);
-      font-size: 0.82rem;
+      font-size: 1rem;
       font-weight: 950;
     }
 
@@ -1396,6 +1404,7 @@
     <nav class="page-switcher" aria-label="페이지 이동">
       <a id="mainPageLink" class="active" href="./index.html" aria-current="page">1. 추첨·대진 생성</a>
       <a id="scorePageLink" class="is-disabled" href="#" aria-disabled="true">2. 경기 스코어</a>
+      <a id="resultsPageLink" class="is-disabled" href="#" aria-disabled="true">3. 경기 결과</a>
     </nav>
     <header class="hero">
       <p class="eyebrow">Tennis Group Draw</p>
@@ -1565,6 +1574,7 @@
           <input id="shareUrlInput" type="text" readonly aria-label="사용자 공유 주소" />
           <button id="copyShareUrlButton" class="button button-secondary" type="button">공유 주소 복사</button>
           <a id="openScorePageButton" class="button-link" href="#">2페이지 열기</a>
+          <a id="openResultsPageButton" class="button-link" href="#">3페이지 결과</a>
         </div>
       </div>
       <div id="resultGrid" class="result-grid"></div>
@@ -1572,7 +1582,7 @@
       <div id="gameScheduleGrid" class="game-schedule-grid"></div>
     </section>
 
-    <p class="footer-note">1페이지에서 추첨·대진을 생성하고, 공유 사용자는 2페이지에서 경기별 스코어를 입력합니다.</p>
+    <p class="footer-note">1페이지에서 추첨·대진을 생성하고, 2페이지에서 스코어를 입력하며, 3페이지에서 조별 순위와 경기 결과를 확인합니다.</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1691,10 +1701,12 @@
       const resultDescription = document.getElementById("resultDescription");
       const mainPageLink = document.getElementById("mainPageLink");
       const scorePageLink = document.getElementById("scorePageLink");
+      const resultsPageLink = document.getElementById("resultsPageLink");
       const sharePanel = document.getElementById("sharePanel");
       const shareUrlInput = document.getElementById("shareUrlInput");
       const copyShareUrlButton = document.getElementById("copyShareUrlButton");
       const openScorePageButton = document.getElementById("openScorePageButton");
+      const openResultsPageButton = document.getElementById("openResultsPageButton");
       const gameScheduleGrid = document.getElementById("gameScheduleGrid");
 
       let drawRound = 0;
@@ -1732,14 +1744,19 @@
       function updatePageLinks(eventId, shareCode) {
         const mainUrl = buildSiblingPageUrl("index.html", eventId, shareCode);
         const scoreUrl = buildSiblingPageUrl("scores.html", eventId, shareCode);
+        const resultsUrl = buildSiblingPageUrl("results.html", eventId, shareCode);
 
         mainPageLink.href = mainUrl;
         scorePageLink.href = scoreUrl;
         scorePageLink.classList.remove("is-disabled");
         scorePageLink.removeAttribute("aria-disabled");
+        resultsPageLink.href = resultsUrl;
+        resultsPageLink.classList.remove("is-disabled");
+        resultsPageLink.removeAttribute("aria-disabled");
 
         shareUrlInput.value = scoreUrl;
         openScorePageButton.href = scoreUrl;
+        openResultsPageButton.href = resultsUrl;
         sharePanel.hidden = false;
       }
 
