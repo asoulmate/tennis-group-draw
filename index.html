@@ -278,7 +278,7 @@
 
     .group-setting-card {
       display: grid;
-      grid-template-columns: 48px minmax(0, 1fr) minmax(135px, 185px) minmax(160px, 205px);
+      grid-template-columns: 48px minmax(0, 1fr) minmax(150px, 185px) minmax(125px, 155px) minmax(150px, 185px);
       gap: 14px;
       align-items: end;
       padding: 15px;
@@ -316,11 +316,100 @@
       color: var(--primary);
     }
 
-    .pair-field .field-label {
+    .pair-field .field-label,
+    .seed-field .field-label {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+    }
+
+    .seed-field select:disabled {
+      color: #8a9692;
+      background: #eef2f0;
+      cursor: not-allowed;
+    }
+
+    .capacity-pair-badge {
+      display: none;
+      padding: 2px 7px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      font-size: 0.69rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .capacity-field.pair-linked .capacity-pair-badge {
+      display: inline-flex;
+      color: var(--pair-text);
+      background: var(--pair-soft);
+      border-color: var(--pair-border);
+    }
+
+    .group-capacity-input.pair-linked {
+      color: var(--pair-text);
+      background: var(--pair-soft);
+      border-color: var(--pair-border);
+      box-shadow: 0 0 0 3px var(--pair-ring);
+      font-weight: 850;
+    }
+
+    .group-capacity-input.pair-linked:focus {
+      border-color: var(--pair-border);
+      box-shadow: 0 0 0 4px var(--pair-ring);
+    }
+
+    .group-capacity-input[aria-invalid="true"] {
+      color: var(--danger);
+      background: #fff8f7;
+      border-color: #e79089;
+      box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.08);
+    }
+
+    .schedule-option-panel {
+      display: grid;
+      grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+      padding: 16px 18px;
+      margin: -4px 0 18px;
+      background: #fffaf0;
+      border: 1px solid #ead9b8;
+      border-radius: var(--radius-md);
+    }
+
+    .schedule-option-copy strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #5c451e;
+      font-size: 0.92rem;
+    }
+
+    .schedule-option-copy p {
+      margin: 0;
+      color: #796747;
+      font-size: 0.84rem;
+    }
+
+    .schedule-option-panel.is-disabled {
+      background: #f4f6f5;
+      border-color: #d7dfdc;
+    }
+
+    .schedule-option-panel.is-disabled .schedule-option-copy strong {
+      color: #66736e;
+    }
+
+    .schedule-option-panel.is-disabled .schedule-option-copy p {
+      color: #87928e;
+    }
+
+    .schedule-option-panel select:disabled {
+      color: #8a9692;
+      background: #e9eeec;
+      border-color: #d3dcd8;
+      cursor: not-allowed;
     }
 
     .optional-label {
@@ -525,6 +614,35 @@
     .name-card input {
       min-height: 42px;
       padding: 8px 11px;
+    }
+
+    /* 시드 고정 위치는 일반 참가자 입력칸과 확실히 구분합니다. */
+    .name-card.seed-position {
+      background: #fff4e8;
+      border-color: #f0a66b;
+      box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.08);
+    }
+
+    .name-card.seed-position .name-index {
+      color: #ffffff;
+      background: #c2410c;
+      box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.14);
+    }
+
+    .name-card.seed-position input {
+      color: #7c2d12;
+      font-weight: 850;
+      background: #fffaf5;
+      border-color: #ea8a43;
+    }
+
+    .name-card.seed-position input::placeholder {
+      color: #b45309;
+    }
+
+    .name-card.seed-position input:focus {
+      border-color: #c2410c;
+      box-shadow: 0 0 0 4px rgba(194, 65, 12, 0.14);
     }
 
     .empty-state {
@@ -859,6 +977,123 @@
       font-weight: 900;
     }
 
+    .game-schedule-heading {
+      margin-top: 28px;
+      margin-bottom: 14px;
+    }
+
+    .game-schedule-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .game-schedule-card {
+      overflow: hidden;
+      background: #ffffff;
+      border: 1px solid #c9dfd7;
+      border-radius: 18px;
+      box-shadow: 0 8px 22px rgba(28, 65, 55, 0.06);
+    }
+
+    .game-schedule-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, #edf7f3, #fbfefd);
+      border-bottom: 1px solid #d6e7e1;
+    }
+
+    .game-schedule-title {
+      min-width: 0;
+    }
+
+    .game-schedule-title span {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .game-schedule-title h3 {
+      overflow-wrap: anywhere;
+      margin: 0;
+      font-size: 1.08rem;
+      letter-spacing: -0.02em;
+    }
+
+    .game-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 14px;
+      list-style: none;
+    }
+
+    .game-row {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 42px minmax(0, 1fr);
+      gap: 10px;
+      align-items: stretch;
+      padding: 10px;
+      background: #fbfdfc;
+      border: 1px solid #e0eae6;
+      border-radius: 13px;
+    }
+
+    .game-number {
+      display: grid;
+      place-items: center;
+      min-height: 54px;
+      padding: 6px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .game-team {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      align-items: stretch;
+      min-width: 0;
+    }
+
+    .game-player {
+      display: grid;
+      align-content: center;
+      min-width: 0;
+      padding: 8px 9px;
+      background: #ffffff;
+      border: 1px solid #dbe7e2;
+      border-radius: 10px;
+    }
+
+    .game-player-position {
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 850;
+    }
+
+    .game-player-name {
+      overflow-wrap: anywhere;
+      font-size: 0.9rem;
+      font-weight: 900;
+    }
+
+    .game-vs {
+      display: grid;
+      place-items: center;
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 950;
+    }
+
     .footer-note {
       margin: 20px 0 0;
       color: var(--muted);
@@ -908,8 +1143,16 @@
         padding: 12px;
       }
 
-      .pair-field {
+      .group-name-field,
+      .pair-field,
+      .capacity-field,
+      .seed-field {
         grid-column: 2 / -1;
+      }
+
+      .schedule-option-panel {
+        grid-template-columns: 1fr;
+        gap: 10px;
       }
 
       .group-index {
@@ -969,6 +1212,29 @@
       .pair-member:last-child {
         grid-column: 2;
       }
+
+      .game-schedule-header {
+        align-items: flex-start;
+        padding: 14px;
+      }
+
+      .game-list {
+        padding: 11px;
+      }
+
+      .game-row {
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .game-vs {
+        grid-column: 2;
+        min-height: 24px;
+      }
+
+      .game-team:last-child {
+        grid-column: 2;
+      }
     }
 
     @media (max-width: 470px) {
@@ -1010,8 +1276,8 @@
         <span class="club-name">모닝스타</span>
       </div>
       <p>
-        전체 조 개수를 정한 뒤 각 조의 이름과 참가 인원을 입력하세요.
-        원하는 두 조를 같은 페어 그룹으로 묶으면, 각 조를 따로 추첨한 뒤 같은 순번끼리 페어가 됩니다.
+        조별 참가자를 추첨한 뒤 인원수에 맞는 한울 AA/AB 경기표를 적용하여 복식 경기 대진까지 자동 생성합니다.
+        같은 페어 그룹으로 묶은 두 조는 AB 방식으로, 미지정 조는 AA 방식으로 배정됩니다.
       </p>
     </header>
 
@@ -1019,8 +1285,8 @@
       <section class="panel" aria-labelledby="groupSettingTitle">
         <div class="panel-heading">
           <div>
-            <h2 id="groupSettingTitle">1. 조 개수와 조별 인원 설정</h2>
-            <p>최상단에서 전체 조 개수를 정하면 해당 개수만큼 조 설정란이 생성됩니다.</p>
+            <h2 id="groupSettingTitle">1. 조·페어 그룹·인원 설정</h2>
+            <p>조 이름 → 페어 그룹 → 참가 인원수 → 시드 배정 순서로 설정합니다.</p>
           </div>
           <div id="groupSummary" class="summary-badge" aria-live="polite">4개 조 · 0명</div>
         </div>
@@ -1034,16 +1300,30 @@
 
           <div class="top-setting-copy">
             <strong>입력한 수만큼 조 설정란을 자동 생성합니다.</strong>
-            <p>조 이름, 참가 인원수, 선택 사항인 페어 그룹을 설정해 주세요.</p>
+            <p>페어 그룹 미지정은 AA 방식(5~16명), 같은 페어 그룹을 지정한 두 조는 AB 방식(각 조 4~8명)으로 자동 전환됩니다.</p>
           </div>
         </div>
 
         <div class="pairing-guide">
           <span aria-hidden="true">🎾</span>
           <span>
-            <strong>페어 그룹은 선택 사항입니다.</strong> 같은 페어 그룹을 선택한 두 조는 인원수가 같아야 하며,
-            추첨 후 1번끼리, 2번끼리 순서대로 페어가 됩니다. 미지정 조는 조별 순서만 무작위로 추첨합니다.
+            <strong>경기표 적용 방식:</strong> 페어 그룹 미지정 조는 한울 AA 경기표, 같은 페어 그룹을 선택한 두 조는 한울 AB 경기표를 적용합니다.
+            AB 쌍이 완성되면 두 조의 인원수가 같은 색으로 표시되고 4~8명으로 제한되며, 한쪽 값을 바꾸면 다른 조도 자동으로 같은 값으로 변경됩니다.
           </span>
+        </div>
+
+        <div class="schedule-option-panel is-disabled" aria-disabled="true">
+          <label class="field" for="twelvePlayerMode">
+            <span class="field-label">12명 AA 경기표</span>
+            <select id="twelvePlayerMode" name="twelvePlayerMode" disabled>
+              <option value="2court">2코트용 경기표</option>
+              <option value="3court">3코트용 경기표</option>
+            </select>
+          </label>
+          <div class="schedule-option-copy">
+            <strong>12명 AA 조를 먼저 설정해 주세요.</strong>
+            <p>페어 그룹 미지정(AA 방식) 조의 참가 인원이 12명일 때만 선택할 수 있습니다.</p>
+          </div>
         </div>
 
         <div id="groupSettingList" class="group-setting-list"></div>
@@ -1085,8 +1365,8 @@
       <section class="panel" aria-labelledby="drawActionTitle">
         <div class="panel-heading">
           <div>
-            <h2 id="drawActionTitle">3. 추첨 및 페어 생성</h2>
-            <p>각 조의 명단을 무작위로 섞고, 설정된 페어 그룹은 같은 순번끼리 연결합니다.</p>
+            <h2 id="drawActionTitle">3. 추첨·페어·경기 대진 생성</h2>
+            <p>추첨 번호를 기준으로 한울 AA/AB 경기표에 참가자를 자동 배정합니다.</p>
           </div>
         </div>
 
@@ -1098,8 +1378,8 @@
               stroke-linejoin="round" />
           </svg>
           <span>
-            각 조에 입력한 참가자만 해당 조 안에서 안전한 난수로 섞습니다.
-            같은 페어 그룹의 두 조는 무작위 결과의 동일 순번끼리 연결하며, 재추첨할 때마다 순서와 페어가 새로 정해집니다.
+            각 조의 참가자는 해당 조 안에서만 안전한 난수로 섞습니다. 시드 적용 조는 경기표의 시드 번호가 고정되며,
+            재추첨 시 새로운 추첨 순서와 그 순서에 따른 경기 대진이 함께 생성됩니다.
           </span>
         </div>
 
@@ -1129,8 +1409,8 @@
         </div>
 
         <div class="action-bar">
-          <button id="drawButton" class="button button-primary" type="submit" disabled>추첨 및 페어 생성</button>
-          <button id="retryButton" class="button button-secondary" type="button" disabled>재추첨</button>
+          <button id="drawButton" class="button button-primary" type="submit" disabled>추첨 및 경기 생성</button>
+          <button id="retryButton" class="button button-secondary" type="button" disabled>재추첨 및 경기 재생성</button>
         </div>
       </section>
     </form>
@@ -1138,7 +1418,7 @@
     <section id="resultPanel" class="panel result-panel" aria-labelledby="resultTitle">
       <div class="panel-heading">
         <div>
-          <h2 id="resultTitle">추첨 및 페어 결과</h2>
+          <h2 id="resultTitle">추첨 번호 및 경기 대진 결과</h2>
           <p id="resultDescription">각 조의 참가자를 확인하세요.</p>
         </div>
         <div id="roundBadge" class="summary-badge">1회차</div>
@@ -1146,9 +1426,11 @@
 
       <div id="resultMeta" class="result-meta"></div>
       <div id="resultGrid" class="result-grid"></div>
+      <div class="result-section-heading game-schedule-heading">경기 대진표</div>
+      <div id="gameScheduleGrid" class="game-schedule-grid"></div>
     </section>
 
-    <p class="footer-note">추첨 결과는 공유 및 실시간 갱신을 위해 서버에 저장됩니다.</p>
+    <p class="footer-note">추첨 순서와 경기 대진은 공유 및 실시간 갱신을 위해 서버에 함께 저장됩니다.</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1166,12 +1448,73 @@
       );
 
       const MAX_GROUPS = 30;
-      const MAX_MEMBERS_PER_GROUP = 100;
-      const MAX_PARTICIPANTS = 500;
+      const MAX_MEMBERS_PER_GROUP = 16;
+      const MAX_PARTICIPANTS = 480;
       const SAMPLE_NAMES = ["A조", "B조", "C조", "D조"];
+      const POSITION_SYMBOLS = "123456789ABCDEFG";
+      const AB_SECOND_GROUP_SYMBOLS = "ABCDEFGH";
+      const AB_SUPPORTED_TOTALS = new Set([8, 10, 12, 14, 16]);
+      const PAIR_GROUP_PALETTE = [
+        { soft: "#eaf3ff", border: "#6c9fda", text: "#255b96", ring: "rgba(71, 126, 188, 0.18)" },
+        { soft: "#f3edff", border: "#9b7bd4", text: "#65439c", ring: "rgba(126, 88, 184, 0.18)" },
+        { soft: "#fff0e8", border: "#df8b5f", text: "#984c28", ring: "rgba(201, 105, 57, 0.18)" },
+        { soft: "#e8f8f0", border: "#62aa85", text: "#256c4c", ring: "rgba(59, 139, 96, 0.18)" },
+        { soft: "#fff7d9", border: "#c5a33b", text: "#785f0d", ring: "rgba(178, 143, 30, 0.18)" },
+        { soft: "#ffecef", border: "#d47789", text: "#96384c", ring: "rgba(190, 72, 95, 0.18)" }
+      ];
+
+      // 한울 AA 경기표: 페어 그룹이 없는 단일 조용(5~16명)
+      const AA_GAME_TABLES = {
+        5: ["12:34", "13:25", "14:35", "15:24", "23:45"],
+        6: ["12:34", "15:46", "23:56", "14:25", "24:36", "16:35"],
+        7: ["12:34", "56:17", "35:24", "14:67", "23:57", "16:25", "46:37"],
+        8: ["12:34", "56:78", "13:57", "24:68", "37:48", "15:26", "16:38", "25:47"],
+        9: ["12:34", "56:78", "19:57", "23:68", "49:38", "15:26", "17:89", "36:45", "24:79"],
+        10: ["12:34", "56:78", "23:6A", "19:58", "3A:45", "27:89", "4A:68", "13:79", "46:59", "17:2A"],
+        11: ["12:34", "56:78", "1B:9A", "23:68", "4A:57", "26:9B", "13:5B", "49:8A", "17:28", "5A:6B", "39:47"],
+        13: ["12:34", "56:78", "9A:BC", "1D:25", "37:4A", "68:9B", "CD:13", "26:5A", "47:8B", "9C:2D", "15:AB", "3C:67", "48:9D"],
+        14: ["12:34", "56:78", "9A:BC", "DE:13", "24:57", "68:9B", "26:CD", "79:AE", "14:8B", "5E:6A", "3C:7B", "2D:89", "3E:45", "AC:1D"],
+        15: ["12:34", "56:78", "9A:BC", "DE:1F", "23:57", "46:AB", "8D:9E", "4F:5C", "13:6B", "27:8A", "9C:5E", "36:DF", "1B:8C", "47:EF", "2A:9D"],
+        16: ["12:34", "56:78", "9A:BC", "DE:FG", "13:57", "24:68", "9B:DF", "AC:EG", "15:9D", "37:BF", "26:AE", "48:CG", "19:2A", "5D:6E", "3B:4C", "7F:8G"]
+      };
+
+      const AA_12_GAME_TABLES = {
+        "2court": ["12:34", "56:78", "9A:BC", "15:26", "39:4A", "7B:8C", "13:59", "24:6A", "7C:14", "8B:23", "67:9B", "58:AC"],
+        "3court": ["12:34", "56:78", "9A:BC", "37:48", "29:5A", "1B:6C", "13:57", "24:9B", "68:AC", "17:2B", "35:6A", "49:8C"]
+      };
+
+      // 한울 AB 경기표: 동일 인원의 두 조를 페어 그룹으로 묶은 경우(총 8~16명)
+      const AB_GAME_TABLES = {
+        8: ["1A:2B", "3C:4D", "1B:3D", "2A:4C", "1C:4B", "2D:3A", "1D:4A", "3B:2C"],
+        10: ["1A:2B", "3C:4D", "5E:1B", "2A:3D", "4C:5B", "1E:3A", "2D:4B", "3E:5C", "1D:4E", "2C:5A"],
+        12: ["1A:2B", "3C:4D", "5E:6F", "1B:3D", "2A:5F", "4C:6E", "1C:5A", "3F:6B", "2D:4E", "3B:5C", "1D:4F", "2E:6A"],
+        14: ["1A:2B", "3C:4D", "5E:6F", "7G:1B", "2A:3D", "4C:5F", "6E:7A", "1G:5C", "2D:4F", "3G:6B", "7E:2C", "1F:4A", "5G:3E", "6D:7B"],
+        16: ["1A:2B", "3C:4D", "5E:6F", "7G:8H", "1B:3D", "2A:4C", "5F:7H", "6E:8G", "1D:4A", "2F:3G", "6B:7C", "5H:8E", "1G:5C", "2H:6D", "3E:7A", "4F:8B"]
+      };
+
+      // 첨부 AA 경기표의 시드 고정 번호(1부터 시작)
+      const AA_SEED_POSITIONS = {
+        5: [],
+        6: [1, 3],
+        7: [1, 5],
+        8: [1, 7],
+        9: [1, 4, 8],
+        10: [1, 8, 10],
+        11: [1, 5, 8, 9],
+        13: [1, 4, 6, 11],
+        14: [2, 5, 8, 12],
+        15: [1, 4, 5, 10, 13],
+        16: [1, 6, 7, 10, 11, 16]
+      };
+
+      const AA_12_SEED_POSITIONS = {
+        "2court": [1, 6, 9, 12],
+        "3court": [2, 3, 8, 10]
+      };
 
       const form = document.getElementById("drawForm");
       const totalGroupCountInput = document.getElementById("totalGroupCount");
+      const twelvePlayerMode = document.getElementById("twelvePlayerMode");
       const groupSettingList = document.getElementById("groupSettingList");
       const groupSummary = document.getElementById("groupSummary");
       const allocationPreview = document.getElementById("allocationPreview");
@@ -1204,6 +1547,7 @@
       const resultMeta = document.getElementById("resultMeta");
       const roundBadge = document.getElementById("roundBadge");
       const resultDescription = document.getElementById("resultDescription");
+      const gameScheduleGrid = document.getElementById("gameScheduleGrid");
 
       let drawRound = 0;
       let hasDrawn = false;
@@ -1240,13 +1584,15 @@
         resultPanel.classList.remove("show");
         resultGrid.replaceChildren();
         resultMeta.replaceChildren();
+        gameScheduleGrid.replaceChildren();
       }
 
       function getGroupValues() {
         return Array.from(groupSettingList.querySelectorAll(".group-setting-card"), (card) => ({
           name: card.querySelector(".group-name-input").value,
           capacity: card.querySelector(".group-capacity-input").value,
-          pairGroup: card.querySelector(".pair-group-input").value
+          pairGroup: card.querySelector(".pair-group-input").value,
+          seedMode: card.querySelector(".seed-mode-input").value
         }));
       }
 
@@ -1271,7 +1617,7 @@
         badge.setAttribute("aria-hidden", "true");
 
         const nameField = document.createElement("label");
-        nameField.className = "field";
+        nameField.className = "field group-name-field";
 
         const nameLabel = document.createElement("span");
         nameLabel.className = "field-label";
@@ -1289,20 +1635,25 @@
         nameField.append(nameLabel, nameInput);
 
         const capacityField = document.createElement("label");
-        capacityField.className = "field";
+        capacityField.className = "field capacity-field";
 
         const capacityLabel = document.createElement("span");
         capacityLabel.className = "field-label";
-        capacityLabel.textContent = "참가 인원수";
+        capacityLabel.append(document.createTextNode("참가 인원수"));
+
+        const capacityPairBadge = document.createElement("span");
+        capacityPairBadge.className = "capacity-pair-badge";
+        capacityPairBadge.textContent = "AB 연동";
+        capacityLabel.appendChild(capacityPairBadge);
 
         const capacityInput = document.createElement("input");
         capacityInput.className = "group-capacity-input";
         capacityInput.type = "number";
         capacityInput.inputMode = "numeric";
-        capacityInput.min = "1";
+        capacityInput.min = "4";
         capacityInput.max = String(MAX_MEMBERS_PER_GROUP);
         capacityInput.step = "1";
-        capacityInput.placeholder = "예: 8";
+        capacityInput.placeholder = "5~16";
         capacityInput.value = value.capacity || "";
         capacityInput.setAttribute("aria-label", `${index + 1}번째 조 참가 인원수`);
 
@@ -1317,7 +1668,7 @@
 
         const optionalLabel = document.createElement("span");
         optionalLabel.className = "optional-label";
-        optionalLabel.textContent = "선택";
+        optionalLabel.textContent = "AB 전용";
         pairLabel.appendChild(optionalLabel);
 
         const pairSelect = document.createElement("select");
@@ -1326,13 +1677,14 @@
 
         const noPairOption = document.createElement("option");
         noPairOption.value = "";
-        noPairOption.textContent = "미지정 (조별 추첨)";
+        noPairOption.textContent = "미지정 (AA 방식)";
         pairSelect.appendChild(noPairOption);
 
         for (let pairIndex = 1; pairIndex <= maxPairGroups; pairIndex += 1) {
           const option = document.createElement("option");
           option.value = `그룹${pairIndex}`;
-          option.textContent = `그룹${pairIndex}`;
+          option.textContent = `그룹${pairIndex} (AB 방식)`;
+          option.dataset.baseLabel = option.textContent;
           pairSelect.appendChild(option);
         }
 
@@ -1344,7 +1696,36 @@
           : "";
 
         pairField.append(pairLabel, pairSelect);
-        card.append(badge, nameField, capacityField, pairField);
+
+        const seedField = document.createElement("label");
+        seedField.className = "field seed-field";
+
+        const seedLabel = document.createElement("span");
+        seedLabel.className = "field-label";
+        seedLabel.append(document.createTextNode("시드 배정"));
+
+        const seedOptional = document.createElement("span");
+        seedOptional.className = "optional-label";
+        seedOptional.textContent = "AA 전용";
+        seedLabel.appendChild(seedOptional);
+
+        const seedSelect = document.createElement("select");
+        seedSelect.className = "seed-mode-input";
+        seedSelect.setAttribute("aria-label", `${index + 1}번째 조 시드 배정`);
+
+        const noSeedOption = document.createElement("option");
+        noSeedOption.value = "none";
+        noSeedOption.textContent = "시드 없음";
+
+        const seedOption = document.createElement("option");
+        seedOption.value = "seeded";
+        seedOption.textContent = "시드 위치 고정";
+
+        seedSelect.append(noSeedOption, seedOption);
+        seedSelect.value = value.seedMode === "seeded" ? "seeded" : "none";
+
+        seedField.append(seedLabel, seedSelect);
+        card.append(badge, nameField, pairField, capacityField, seedField);
         return card;
       }
 
@@ -1368,8 +1749,274 @@
         }
 
         groupSettingList.appendChild(fragment);
+        syncGroupOptionAvailability();
         updateConfigurationSummary();
         renderNameFields();
+      }
+
+      function getPairPalette(pairGroup) {
+        const numberMatch = pairGroup.match(/(\d+)$/);
+        let paletteIndex = 0;
+
+        if (numberMatch) {
+          paletteIndex = (Number(numberMatch[1]) - 1) % PAIR_GROUP_PALETTE.length;
+        } else {
+          paletteIndex = Array.from(pairGroup).reduce(
+            (sum, character) => sum + character.charCodeAt(0),
+            0
+          ) % PAIR_GROUP_PALETTE.length;
+        }
+
+        return PAIR_GROUP_PALETTE[paletteIndex];
+      }
+
+      function normalizeAbCapacityValue(rawValue) {
+        if (String(rawValue).trim() === "") {
+          return "";
+        }
+
+        const numericValue = Number(rawValue);
+        if (!Number.isFinite(numericValue)) {
+          return "";
+        }
+
+        return String(Math.min(8, Math.max(4, Math.round(numericValue))));
+      }
+
+      function mirrorPairedCapacity(sourceInput, { clamp = false } = {}) {
+        const sourceCard = sourceInput.closest(".group-setting-card");
+        const pairGroup = normalizeText(
+          sourceCard?.querySelector(".pair-group-input")?.value || ""
+        );
+
+        if (!sourceCard || !pairGroup) {
+          return;
+        }
+
+        const pairedCards = Array.from(
+          groupSettingList.querySelectorAll(".group-setting-card")
+        ).filter((card) => (
+          normalizedKey(card.querySelector(".pair-group-input").value) === normalizedKey(pairGroup)
+        ));
+
+        if (pairedCards.length !== 2) {
+          return;
+        }
+
+        const synchronizedValue = clamp
+          ? normalizeAbCapacityValue(sourceInput.value)
+          : sourceInput.value;
+
+        sourceInput.value = synchronizedValue;
+        pairedCards.forEach((card) => {
+          const input = card.querySelector(".group-capacity-input");
+          if (input !== sourceInput) {
+            input.value = synchronizedValue;
+          }
+        });
+      }
+
+      function reconcileCompletedPairCapacity(entries, sourceCard = null) {
+        const sourceEntry = sourceCard
+          ? entries.find((entry) => entry.card === sourceCard)
+          : null;
+        const preferredEntry = (
+          sourceEntry && String(sourceEntry.capacityInput.value).trim() !== ""
+        )
+          ? sourceEntry
+          : entries.find((entry) => String(entry.capacityInput.value).trim() !== "");
+
+        if (!preferredEntry) {
+          return;
+        }
+
+        const synchronizedValue = normalizeAbCapacityValue(
+          preferredEntry.capacityInput.value
+        );
+
+        entries.forEach((entry) => {
+          entry.capacityInput.value = synchronizedValue;
+        });
+      }
+
+      function applyCompletedPairStyle(entry, pairLabel) {
+        const palette = getPairPalette(pairLabel);
+        const { card, capacityField, capacityInput, capacityPairBadge } = entry;
+
+        capacityField.classList.add("pair-linked");
+        capacityInput.classList.add("pair-linked");
+        capacityInput.min = "4";
+        capacityInput.max = "8";
+        capacityInput.placeholder = "4~8";
+        capacityInput.title = `${pairLabel} AB 연동: 한쪽 인원을 변경하면 같은 그룹의 다른 조도 자동으로 변경됩니다.`;
+        capacityPairBadge.textContent = `${pairLabel} 연동`;
+
+        [card, capacityField, capacityInput].forEach((element) => {
+          element.style.setProperty("--pair-soft", palette.soft);
+          element.style.setProperty("--pair-border", palette.border);
+          element.style.setProperty("--pair-text", palette.text);
+          element.style.setProperty("--pair-ring", palette.ring);
+        });
+      }
+
+      function updatePairGroupSelectAvailability(cards, pairBuckets) {
+        cards.forEach((card) => {
+          const pairSelect = card.querySelector(".pair-group-input");
+          const currentPairKey = normalizedKey(pairSelect.value);
+
+          Array.from(pairSelect.options).forEach((option) => {
+            if (!option.value) {
+              return;
+            }
+
+            const optionKey = normalizedKey(option.value);
+            const selectedCount = pairBuckets.get(optionKey)?.entries.length || 0;
+            const baseLabel = option.dataset.baseLabel || option.textContent;
+            const isCurrentSelection = currentPairKey === optionKey;
+            const isFullForThisSelect = selectedCount >= 2 && !isCurrentSelection;
+
+            option.dataset.baseLabel = baseLabel;
+            option.disabled = isFullForThisSelect;
+            option.textContent = isFullForThisSelect
+              ? `${baseLabel} · 선택 완료`
+              : baseLabel;
+          });
+        });
+      }
+
+      function updateTwelvePlayerModeAvailability(cards) {
+        const eligibleAaGroups = cards.filter((card) => {
+          const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
+          const capacity = Number(card.querySelector(".group-capacity-input").value);
+          return !pairGroup && capacity === 12;
+        });
+
+        const isEnabled = eligibleAaGroups.length > 0;
+        const optionPanel = twelvePlayerMode.closest(".schedule-option-panel");
+        const optionCopy = optionPanel?.querySelector(".schedule-option-copy");
+        const optionTitle = optionCopy?.querySelector("strong");
+        const optionDescription = optionCopy?.querySelector("p");
+
+        twelvePlayerMode.disabled = !isEnabled;
+        twelvePlayerMode.title = isEnabled
+          ? "12명 AA 경기표의 코트 운영 방식을 선택합니다."
+          : "페어 그룹 미지정(AA 방식) 조의 참가 인원을 12명으로 설정하면 활성화됩니다.";
+
+        if (optionPanel) {
+          optionPanel.classList.toggle("is-disabled", !isEnabled);
+          optionPanel.setAttribute("aria-disabled", isEnabled ? "false" : "true");
+        }
+
+        if (optionTitle) {
+          optionTitle.textContent = isEnabled
+            ? `12명 AA 조 ${eligibleAaGroups.length}개에 적용됩니다.`
+            : "12명 AA 조를 먼저 설정해 주세요.";
+        }
+
+        if (optionDescription) {
+          optionDescription.textContent = isEnabled
+            ? "2코트용 또는 3코트용 경기표를 선택하세요. 해당 조건의 모든 12명 AA 조에 동일하게 적용됩니다."
+            : "페어 그룹 미지정(AA 방식) 조의 참가 인원이 12명일 때만 선택할 수 있습니다.";
+        }
+      }
+
+      function syncGroupOptionAvailability({ sourceCard = null, reconcilePairs = false } = {}) {
+        const cards = Array.from(
+          groupSettingList.querySelectorAll(".group-setting-card")
+        );
+        const pairBuckets = new Map();
+
+        cards.forEach((card) => {
+          const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
+          const capacityField = card.querySelector(".capacity-field");
+          const capacityInput = card.querySelector(".group-capacity-input");
+          const capacityPairBadge = card.querySelector(".capacity-pair-badge");
+          const seedSelect = card.querySelector(".seed-mode-input");
+
+          capacityField.classList.remove("pair-linked");
+          capacityInput.classList.remove("pair-linked");
+          capacityInput.min = "5";
+          capacityInput.max = String(MAX_MEMBERS_PER_GROUP);
+          capacityInput.placeholder = "5~16";
+          capacityInput.title = pairGroup
+            ? "같은 페어 그룹을 선택한 조가 정확히 2개가 되면 AB 방식(4~8명)으로 연동됩니다."
+            : "한울 AA: 5~16명 지원";
+          capacityPairBadge.textContent = "AB 연동";
+
+          [card, capacityField, capacityInput].forEach((element) => {
+            element.style.removeProperty("--pair-soft");
+            element.style.removeProperty("--pair-border");
+            element.style.removeProperty("--pair-text");
+            element.style.removeProperty("--pair-ring");
+          });
+
+          if (pairGroup) {
+            const pairKey = normalizedKey(pairGroup);
+            if (!pairBuckets.has(pairKey)) {
+              pairBuckets.set(pairKey, {
+                label: pairGroup,
+                entries: []
+              });
+            }
+            pairBuckets.get(pairKey).entries.push({
+              card,
+              capacityField,
+              capacityInput,
+              capacityPairBadge,
+              seedSelect
+            });
+          }
+        });
+
+        updatePairGroupSelectAvailability(cards, pairBuckets);
+
+        pairBuckets.forEach((bucket) => {
+          if (bucket.entries.length !== 2) {
+            return;
+          }
+
+          if (reconcilePairs) {
+            reconcileCompletedPairCapacity(bucket.entries, sourceCard);
+          }
+
+          bucket.entries.forEach((entry) => {
+            applyCompletedPairStyle(entry, bucket.label);
+          });
+        });
+
+        cards.forEach((card) => {
+          const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
+          const capacityInput = card.querySelector(".group-capacity-input");
+          const capacity = Number(capacityInput.value);
+          const seedSelect = card.querySelector(".seed-mode-input");
+          const linkedPair = capacityInput.classList.contains("pair-linked");
+          const seedUnsupported = capacity === 5;
+          const minimum = Number(capacityInput.min);
+          const maximum = Number(capacityInput.max);
+          const basicCapacityInvalid = String(capacityInput.value).trim() !== "" && (
+            !Number.isInteger(capacity) || capacity < minimum || capacity > maximum
+          );
+
+          capacityInput.setAttribute(
+            "aria-invalid",
+            basicCapacityInvalid ? "true" : "false"
+          );
+
+          if (pairGroup || seedUnsupported) {
+            seedSelect.value = "none";
+            seedSelect.disabled = true;
+            seedSelect.title = pairGroup
+              ? (linkedPair
+                ? "AB 경기표에서는 별도 시드 고정을 적용하지 않습니다."
+                : "페어 그룹이 지정된 조는 AB 방식으로 사용되므로 시드 배정을 적용하지 않습니다.")
+              : "첨부 경기표에는 5명용 시드 위치가 지정되어 있지 않습니다.";
+          } else {
+            seedSelect.disabled = false;
+            seedSelect.title = "첨부 AA 경기표의 인원별 시드 번호를 고정합니다.";
+          }
+        });
+
+        updateTwelvePlayerModeAvailability(cards);
       }
 
       function getCapacityState() {
@@ -1379,8 +2026,11 @@
         let allValid = cards.length > 0;
 
         cards.forEach((card) => {
-          const value = Number(card.querySelector(".group-capacity-input").value);
-          const valid = Number.isInteger(value) && value >= 1 && value <= MAX_MEMBERS_PER_GROUP;
+          const input = card.querySelector(".group-capacity-input");
+          const value = Number(input.value);
+          const minimum = Number(input.min || 5);
+          const maximum = Number(input.max || MAX_MEMBERS_PER_GROUP);
+          const valid = Number.isInteger(value) && value >= minimum && value <= maximum;
           capacities.push(valid ? value : null);
 
           if (valid) {
@@ -1442,9 +2092,10 @@
           const name = rawName || `${index + 1}번째 조`;
           const capacity = state.capacities[index];
           const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
+          const seeded = card.querySelector(".seed-mode-input").value === "seeded";
           allocationPreview.appendChild(
             createAllocationChip(
-              `${name} · ${capacity === null ? "인원 미입력" : `${capacity}명`} · ${pairGroup || "개별 추첨"}`
+              `${name} · ${capacity === null ? "인원 미입력" : `${capacity}명`} · ${pairGroup || "AA 개별"}${seeded ? " · 시드" : ""}`
             )
           );
         });
@@ -1457,7 +2108,7 @@
         return empty;
       }
 
-      function createGroupParticipantSection(groupIndex, groupName, capacity, pairGroup) {
+      function createGroupParticipantSection(groupIndex, groupName, capacity, pairGroup, seeded) {
         const section = document.createElement("section");
         section.className = "group-participant-card";
         section.dataset.groupIndex = String(groupIndex);
@@ -1471,8 +2122,8 @@
         const kicker = document.createElement("span");
         kicker.className = "group-kicker";
         kicker.textContent = pairGroup
-          ? `${groupIndex + 1}번째 조 참가자 · ${pairGroup}`
-          : `${groupIndex + 1}번째 조 참가자 · 개별 추첨`;
+          ? `${groupIndex + 1}번째 조 참가자 · ${pairGroup} · AB 방식`
+          : `${groupIndex + 1}번째 조 참가자 · AA 방식${seeded ? " · 시드 적용" : ""}`;
 
         const title = document.createElement("h3");
         title.textContent = groupName;
@@ -1509,25 +2160,43 @@
         const grid = document.createElement("div");
         grid.className = "name-grid";
         const drafts = participantDrafts[groupIndex] || [];
+        const seedPositions = seeded && !pairGroup
+          ? new Set(
+            getSeedPositions(capacity, {
+              twelvePlayerMode: twelvePlayerMode.value === "3court" ? "3court" : "2court"
+            })
+          )
+          : new Set();
 
         for (let memberIndex = 0; memberIndex < capacity; memberIndex += 1) {
+          const positionNumber = memberIndex + 1;
+          const isSeedPosition = seedPositions.has(positionNumber);
           const card = document.createElement("label");
           card.className = "name-card";
 
+          if (isSeedPosition) {
+            card.classList.add("seed-position");
+            card.title = `${positionNumber}번은 시드 고정 위치입니다.`;
+          }
+
           const number = document.createElement("span");
           number.className = "name-index";
-          number.textContent = String(memberIndex + 1);
+          number.textContent = String(positionNumber);
 
           const input = document.createElement("input");
           input.className = "participant-name-input";
           input.type = "text";
           input.maxLength = 30;
           input.autocomplete = "off";
-          input.placeholder = "이름 입력";
+          input.placeholder = isSeedPosition ? "시드 선수 이름" : "이름 입력";
           input.value = drafts[memberIndex] || "";
           input.dataset.groupIndex = String(groupIndex);
           input.dataset.memberIndex = String(memberIndex);
-          input.setAttribute("aria-label", `${groupName} ${memberIndex + 1}번째 참가자 이름`);
+          input.dataset.seedPosition = isSeedPosition ? "true" : "false";
+          input.setAttribute(
+            "aria-label",
+            `${groupName} ${positionNumber}번째 참가자 이름${isSeedPosition ? " (시드 고정 위치)" : ""}`
+          );
 
           card.append(number, input);
           grid.appendChild(card);
@@ -1569,12 +2238,14 @@
           const rawName = normalizeText(card.querySelector(".group-name-input").value);
           const displayName = rawName || `${index + 1}번째 조 (이름 입력 전)`;
           const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
+          const seeded = card.querySelector(".seed-mode-input").value === "seeded";
           fragment.appendChild(
             createGroupParticipantSection(
               index,
               displayName,
               state.capacities[index],
-              pairGroup
+              pairGroup,
+              seeded
             )
           );
         });
@@ -1646,9 +2317,11 @@
           const nameInput = cards[index].querySelector(".group-name-input");
           const capacityInput = cards[index].querySelector(".group-capacity-input");
           const pairInput = cards[index].querySelector(".pair-group-input");
+          const seedInput = cards[index].querySelector(".seed-mode-input");
           const name = normalizeText(nameInput.value);
           const capacity = Number(capacityInput.value);
           const pairGroup = normalizeText(pairInput.value);
+          const seeded = seedInput.value === "seeded";
 
           if (!name) {
             return focusAndReport(nameInput, `${index + 1}번째 조 이름을 입력해 주세요.`);
@@ -1663,10 +2336,10 @@
             );
           }
 
-          if (!Number.isInteger(capacity) || capacity < 1 || capacity > MAX_MEMBERS_PER_GROUP) {
+          if (!Number.isInteger(capacity) || capacity < 4 || capacity > MAX_MEMBERS_PER_GROUP) {
             return focusAndReport(
               capacityInput,
-              `"${name}"의 참가 인원수는 1명부터 ${MAX_MEMBERS_PER_GROUP}명까지 정수로 입력해 주세요.`
+              `"${name}"의 참가 인원수는 4명부터 ${MAX_MEMBERS_PER_GROUP}명까지 정수로 입력해 주세요.`
             );
           }
 
@@ -1680,8 +2353,10 @@
             capacity,
             pairGroup,
             pairGroupKey: pairGroup ? normalizedKey(pairGroup) : "",
+            seeded,
             capacityInput,
-            pairInput
+            pairInput,
+            seedInput
           };
           configurations.push(configuration);
 
@@ -1716,6 +2391,23 @@
             return focusAndReport(
               secondGroup.capacityInput,
               `"${bucket.label}"으로 묶은 "${firstGroup.name}"과 "${secondGroup.name}"의 참가 인원수는 같아야 합니다.`
+            );
+          }
+
+          const abTotalParticipants = firstGroup.capacity + secondGroup.capacity;
+          if (!AB_SUPPORTED_TOTALS.has(abTotalParticipants)) {
+            return focusAndReport(
+              firstGroup.capacityInput,
+              `"${bucket.label}" AB 경기표는 두 조의 인원이 같아야 하며, 합계 8·10·12·14·16명만 사용할 수 있습니다. 현재 합계는 ${abTotalParticipants}명입니다.`
+            );
+          }
+        }
+
+        for (const configuration of configurations) {
+          if (!configuration.pairGroupKey && (configuration.capacity < 5 || configuration.capacity > 16)) {
+            return focusAndReport(
+              configuration.capacityInput,
+              `"${configuration.name}" AA 경기표는 5명부터 16명일 때만 사용할 수 있습니다.`
             );
           }
         }
@@ -1770,6 +2462,7 @@
             name: configuration.name,
             capacity: configuration.capacity,
             pairGroup: configuration.pairGroup,
+            seeded: configuration.seeded,
             members
           });
         }
@@ -1777,7 +2470,10 @@
         return {
           groups,
           totalParticipants,
-          pairGroupCount: pairBuckets.size
+          pairGroupCount: pairBuckets.size,
+          scheduleSettings: {
+            twelvePlayerMode: twelvePlayerMode.value === "3court" ? "3court" : "2court"
+          }
         };
       }
 
@@ -1814,6 +2510,156 @@
         return copy;
       }
 
+      function getSeedPositions(memberCount, scheduleSettings) {
+        if (memberCount === 12) {
+          const mode = scheduleSettings?.twelvePlayerMode === "3court" ? "3court" : "2court";
+          return AA_12_SEED_POSITIONS[mode] || [];
+        }
+
+        return AA_SEED_POSITIONS[memberCount] || [];
+      }
+
+      function shuffledCopyWithFixedPositions(items, fixedPositions) {
+        const fixedIndexes = new Set(
+          fixedPositions
+            .map((position) => position - 1)
+            .filter((index) => index >= 0 && index < items.length)
+        );
+        const movableItems = items.filter((_, index) => !fixedIndexes.has(index));
+        const shuffledMovableItems = shuffledCopy(movableItems);
+        let movableIndex = 0;
+
+        return items.map((item, index) => {
+          if (fixedIndexes.has(index)) {
+            return item;
+          }
+
+          const shuffledItem = shuffledMovableItems[movableIndex];
+          movableIndex += 1;
+          return shuffledItem;
+        });
+      }
+
+      function drawMembersForGroup(group, scheduleSettings) {
+        if (!group.seeded || group.pairGroup) {
+          return shuffledCopy(group.members);
+        }
+
+        return shuffledCopyWithFixedPositions(
+          group.members,
+          getSeedPositions(group.members.length, scheduleSettings)
+        );
+      }
+
+      function parseMatchCode(code) {
+        const [firstTeam, secondTeam] = code.split(":");
+        return [firstTeam.split(""), secondTeam.split("")];
+      }
+
+      function createPlayerReference(assignment, symbol, index) {
+        return {
+          groupName: assignment.name,
+          name: assignment.members[index],
+          position: symbol
+        };
+      }
+
+      function generateAAGames(assignment, scheduleSettings) {
+        const memberCount = assignment.members.length;
+        const mode = scheduleSettings?.twelvePlayerMode === "3court" ? "3court" : "2court";
+        const codes = memberCount === 12
+          ? AA_12_GAME_TABLES[mode]
+          : AA_GAME_TABLES[memberCount];
+
+        if (!codes) {
+          throw new Error(`${assignment.name} ${memberCount}명 AA 경기표가 없습니다.`);
+        }
+
+        return codes.map((code, gameIndex) => {
+          const [firstTeam, secondTeam] = parseMatchCode(code);
+          const toPlayer = (symbol) => {
+            const memberIndex = POSITION_SYMBOLS.indexOf(symbol);
+            return createPlayerReference(assignment, symbol, memberIndex);
+          };
+
+          return {
+            gameNumber: gameIndex + 1,
+            code,
+            team1: firstTeam.map(toPlayer),
+            team2: secondTeam.map(toPlayer)
+          };
+        });
+      }
+
+      function generateABGames(pairGroupName, assignments) {
+        const [firstAssignment, secondAssignment] = assignments;
+        const totalParticipants = firstAssignment.members.length + secondAssignment.members.length;
+        const codes = AB_GAME_TABLES[totalParticipants];
+
+        if (!codes) {
+          throw new Error(`${pairGroupName} ${totalParticipants}명 AB 경기표가 없습니다.`);
+        }
+
+        const toPlayer = (symbol) => {
+          if (/^[1-8]$/.test(symbol)) {
+            return createPlayerReference(firstAssignment, symbol, Number(symbol) - 1);
+          }
+
+          const secondIndex = AB_SECOND_GROUP_SYMBOLS.indexOf(symbol);
+          return createPlayerReference(secondAssignment, symbol, secondIndex);
+        };
+
+        return codes.map((code, gameIndex) => {
+          const [firstTeam, secondTeam] = parseMatchCode(code);
+          return {
+            gameNumber: gameIndex + 1,
+            code,
+            team1: firstTeam.map(toPlayer),
+            team2: secondTeam.map(toPlayer)
+          };
+        });
+      }
+
+      function generateGameSchedules(assignments, scheduleSettings = {}) {
+        const pairBuckets = new Map();
+        const schedules = [];
+
+        assignments.forEach((assignment) => {
+          if (!assignment.pairGroup) {
+            schedules.push({
+              type: "AA",
+              key: `aa-${assignment.name}`,
+              title: `${assignment.name} 경기`,
+              subtitle: `한울 AA · ${assignment.members.length}명${assignment.seeded ? " · 시드 적용" : ""}`,
+              games: generateAAGames(assignment, scheduleSettings)
+            });
+            return;
+          }
+
+          const key = normalizedKey(assignment.pairGroup);
+          if (!pairBuckets.has(key)) {
+            pairBuckets.set(key, {
+              label: assignment.pairGroup,
+              assignments: []
+            });
+          }
+          pairBuckets.get(key).assignments.push(assignment);
+        });
+
+        pairBuckets.forEach((entry) => {
+          const [firstAssignment, secondAssignment] = entry.assignments;
+          schedules.push({
+            type: "AB",
+            key: `ab-${entry.label}`,
+            title: `${entry.label} 경기`,
+            subtitle: `한울 AB · ${firstAssignment.name}(1~${firstAssignment.members.length}) × ${secondAssignment.name}(A~${AB_SECOND_GROUP_SYMBOLS[firstAssignment.members.length - 1]})`,
+            games: generateABGames(entry.label, entry.assignments)
+          });
+        });
+
+        return schedules;
+      }
+
       function createMetaChip(text) {
         const chip = document.createElement("span");
         chip.className = "meta-chip";
@@ -1821,7 +2667,7 @@
         return chip;
       }
 
-      function createStandardResultCard(assignment) {
+      function createStandardResultCard(assignment, positionMode = "numeric") {
         const card = document.createElement("article");
         card.className = "result-card";
 
@@ -1846,7 +2692,9 @@
 
           const memberNumber = document.createElement("span");
           memberNumber.className = "member-number";
-          memberNumber.textContent = String(index + 1);
+          memberNumber.textContent = positionMode === "letters"
+            ? AB_SECOND_GROUP_SYMBOLS[index]
+            : String(index + 1);
 
           const memberName = document.createElement("span");
           memberName.className = "member-name";
@@ -1860,80 +2708,98 @@
         return card;
       }
 
-      function createPairMember(groupName, memberName) {
-        const member = document.createElement("div");
-        member.className = "pair-member";
+      function createGamePlayer(player) {
+        const item = document.createElement("span");
+        item.className = "game-player";
 
-        const group = document.createElement("span");
-        group.className = "pair-group-name";
-        group.textContent = groupName;
+        const position = document.createElement("span");
+        position.className = "game-player-position";
+        position.textContent = `${player.groupName} · ${player.position}번`;
 
         const name = document.createElement("strong");
-        name.className = "pair-member-name";
-        name.textContent = memberName;
+        name.className = "game-player-name";
+        name.textContent = player.name;
 
-        member.append(group, name);
-        return member;
+        item.append(position, name);
+        return item;
       }
 
-      function createPairResultCard(pairGroupName, pairedAssignments) {
-        const [firstAssignment, secondAssignment] = pairedAssignments;
-        const pairCount = firstAssignment.members.length;
+      function createGameTeam(players) {
+        const team = document.createElement("div");
+        team.className = "game-team";
+        players.forEach((player) => team.appendChild(createGamePlayer(player)));
+        return team;
+      }
 
+      function createGameScheduleCard(schedule) {
         const card = document.createElement("section");
-        card.className = "pair-result-card";
+        card.className = "game-schedule-card";
 
         const header = document.createElement("div");
-        header.className = "pair-result-header";
+        header.className = "game-schedule-header";
 
         const titleWrap = document.createElement("div");
-        titleWrap.className = "pair-result-title";
+        titleWrap.className = "game-schedule-title";
 
-        const kicker = document.createElement("span");
-        kicker.textContent = `${firstAssignment.name} × ${secondAssignment.name}`;
+        const subtitle = document.createElement("span");
+        subtitle.textContent = schedule.subtitle;
 
         const title = document.createElement("h3");
-        title.textContent = `${pairGroupName} 페어 결과`;
+        title.textContent = schedule.title;
 
-        titleWrap.append(kicker, title);
+        titleWrap.append(subtitle, title);
 
         const count = document.createElement("span");
         count.className = "member-count";
-        count.textContent = `${pairCount}페어`;
+        count.textContent = `${schedule.games.length}경기`;
 
         header.append(titleWrap, count);
 
         const list = document.createElement("ol");
-        list.className = "pair-list";
-        list.setAttribute(
-          "aria-label",
-          `${pairGroupName} ${firstAssignment.name}과 ${secondAssignment.name} 페어 결과`
-        );
+        list.className = "game-list";
+        list.setAttribute("aria-label", `${schedule.title} 대진표`);
 
-        for (let index = 0; index < pairCount; index += 1) {
-          const item = document.createElement("li");
-          item.className = "pair-row";
+        schedule.games.forEach((game) => {
+          const row = document.createElement("li");
+          row.className = "game-row";
 
-          const pairNumber = document.createElement("span");
-          pairNumber.className = "pair-number";
-          pairNumber.textContent = `${index + 1}번 페어`;
+          const number = document.createElement("span");
+          number.className = "game-number";
+          number.textContent = `게임 ${game.gameNumber}`;
 
-          const link = document.createElement("span");
-          link.className = "pair-link";
-          link.textContent = "+";
-          link.setAttribute("aria-hidden", "true");
+          const versus = document.createElement("span");
+          versus.className = "game-vs";
+          versus.textContent = "VS";
+          versus.setAttribute("aria-hidden", "true");
 
-          item.append(
-            pairNumber,
-            createPairMember(firstAssignment.name, firstAssignment.members[index]),
-            link,
-            createPairMember(secondAssignment.name, secondAssignment.members[index])
+          row.append(
+            number,
+            createGameTeam(game.team1),
+            versus,
+            createGameTeam(game.team2)
           );
-          list.appendChild(item);
-        }
+          list.appendChild(row);
+        });
 
         card.append(header, list);
         return card;
+      }
+
+      function renderGameSchedules(gameSchedules, fallbackMessage = "생성된 경기 대진이 없습니다.") {
+        gameScheduleGrid.replaceChildren();
+
+        if (gameSchedules.length === 0) {
+          gameScheduleGrid.appendChild(createEmptyState(fallbackMessage));
+          return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        gameSchedules.forEach((schedule) => {
+          fragment.appendChild(createGameScheduleCard(schedule));
+        });
+
+        gameScheduleGrid.appendChild(fragment);
       }
 
       function createResultSectionHeading(text) {
@@ -1943,7 +2809,7 @@
         return heading;
       }
 
-      function renderResults(assignments, totalParticipants) {
+      function renderResults(assignments, totalParticipants, gameSchedules = [], scheduleSettings = {}) {
         resultGrid.replaceChildren();
         resultMeta.replaceChildren();
 
@@ -1968,16 +2834,17 @@
 
         const pairedEntries = Array.from(pairBuckets.values());
         const fragment = document.createDocumentFragment();
-        let totalPairs = 0;
 
         pairedEntries.forEach((entry) => {
-          totalPairs += entry.assignments[0].members.length;
-          fragment.appendChild(createPairResultCard(entry.label, entry.assignments));
+          const [firstAssignment, secondAssignment] = entry.assignments;
+          fragment.appendChild(createResultSectionHeading(`${entry.label} · AB 추첨 번호`));
+          fragment.appendChild(createStandardResultCard(firstAssignment, "numeric"));
+          fragment.appendChild(createStandardResultCard(secondAssignment, "letters"));
         });
 
         if (unpairedAssignments.length > 0) {
           if (pairedEntries.length > 0) {
-            fragment.appendChild(createResultSectionHeading("페어 그룹 미지정 조 · 개별 추첨 결과"));
+            fragment.appendChild(createResultSectionHeading("페어 그룹 미지정 조 · AA 추첨 결과"));
           }
 
           unpairedAssignments.forEach((assignment) => {
@@ -1986,36 +2853,48 @@
         }
 
         resultGrid.appendChild(fragment);
+
+        let schedules = gameSchedules;
+        let scheduleError = "";
+
+        if (schedules.length === 0) {
+          try {
+            schedules = generateGameSchedules(assignments, scheduleSettings);
+          } catch (error) {
+            console.error("경기 대진 생성 오류:", error);
+            schedules = [];
+            scheduleError = error.message;
+          }
+        }
+
+        const totalGames = schedules.reduce((sum, schedule) => sum + schedule.games.length, 0);
+        renderGameSchedules(
+          schedules,
+          scheduleError
+            ? `기존 추첨 결과는 불러왔지만 경기 대진을 만들지 못했습니다: ${scheduleError}`
+            : "생성된 경기 대진이 없습니다."
+        );
+
         resultMeta.append(
           createMetaChip(`참가자 ${totalParticipants}명`),
-          createMetaChip(`전체 ${assignments.length}개 조`)
+          createMetaChip(`전체 ${assignments.length}개 조`),
+          createMetaChip(`총 ${totalGames}경기`)
         );
 
         if (pairedEntries.length > 0) {
           resultMeta.appendChild(
-            createMetaChip(`페어 그룹 ${pairedEntries.length}개 · 총 ${totalPairs}페어`)
+            createMetaChip(`AB 경기 그룹 ${pairedEntries.length}개`)
           );
-        } else {
-          resultMeta.appendChild(createMetaChip("각 조 내부에서만 무작위 추첨"));
         }
 
-        if (unpairedAssignments.length > 0 && pairedEntries.length > 0) {
-          resultMeta.appendChild(createMetaChip(`개별 추첨 ${unpairedAssignments.length}개 조`));
+        if (unpairedAssignments.length > 0) {
+          resultMeta.appendChild(createMetaChip(`AA 경기 ${unpairedAssignments.length}개 조`));
         }
 
         roundBadge.textContent = `${drawRound}회차`;
-
-        if (pairedEntries.length > 0) {
-          resultDescription.textContent =
-            drawRound === 1
-              ? "각 조를 독립적으로 무작위 추첨한 뒤, 같은 페어 그룹의 동일 순번끼리 연결한 결과입니다."
-              : `${drawRound}번째 재추첨 및 페어 결과입니다.`;
-        } else {
-          resultDescription.textContent =
-            drawRound === 1
-              ? "페어 그룹 미지정 상태로 각 조 내부의 무작위 순서만 정한 결과입니다."
-              : `${drawRound}번째 조별 재추첨 결과입니다.`;
-        }
+        resultDescription.textContent = drawRound === 1
+          ? "추첨 번호를 인원별 한울 AA/AB 경기표에 적용한 결과입니다."
+          : `${drawRound}번째 재추첨 및 경기 대진 결과입니다.`;
 
         resultPanel.classList.add("show");
       }
@@ -2117,7 +2996,7 @@
       }
 
       // 추첨 결과를 Supabase에 신규 저장하거나 기존 결과 수정
-      async function saveDrawToSupabase(assignments, totalParticipants) {
+      async function saveDrawToSupabase(assignments, totalParticipants, gameSchedules, scheduleSettings) {
 
         if (!currentAdmin) {
           throw new Error(
@@ -2134,6 +3013,8 @@
           draw_data: {
             assignments: assignments,
             totalParticipants: totalParticipants,
+            gameSchedules: gameSchedules,
+            scheduleSettings: scheduleSettings,
             savedAt: new Date().toISOString()
           },
           updated_at: new Date().toISOString()
@@ -2240,6 +3121,12 @@
         const totalParticipants =
           data.draw_data?.totalParticipants || 0;
 
+        const scheduleSettings =
+          data.draw_data?.scheduleSettings || { twelvePlayerMode: "2court" };
+
+        const gameSchedules =
+          data.draw_data?.gameSchedules || [];
+
         if (assignments.length === 0) {
           showMessage(
             "저장된 추첨 결과가 없습니다.",
@@ -2255,7 +3142,9 @@
 
         renderResults(
           assignments,
-          totalParticipants
+          totalParticipants,
+          gameSchedules,
+          scheduleSettings
         );
 
         showMessage(
@@ -2300,6 +3189,12 @@
               const totalParticipants =
                 updatedEvent.draw_data?.totalParticipants || 0;
 
+              const scheduleSettings =
+                updatedEvent.draw_data?.scheduleSettings || { twelvePlayerMode: "2court" };
+
+              const gameSchedules =
+                updatedEvent.draw_data?.gameSchedules || [];
+
               if (assignments.length === 0) {
                 return;
               }
@@ -2310,7 +3205,9 @@
 
               renderResults(
                 assignments,
-                totalParticipants
+                totalParticipants,
+                gameSchedules,
+                scheduleSettings
               );
 
               showMessage(
@@ -2346,19 +3243,22 @@
 
         const assignments = data.groups.map((group) => ({
           ...group,
-          members: shuffledCopy(group.members)
+          members: drawMembersForGroup(group, data.scheduleSettings)
         }));
+        const gameSchedules = generateGameSchedules(assignments, data.scheduleSettings);
 
         drawRound = isRetry && hasDrawn ? drawRound + 1 : 1;
         hasDrawn = true;
         retryButton.disabled = false;
         clearMessage();
-        renderResults(assignments, data.totalParticipants);
+        renderResults(assignments, data.totalParticipants, gameSchedules, data.scheduleSettings);
 
         try {
           const savedEvent = await saveDrawToSupabase(
             assignments,
-            data.totalParticipants
+            data.totalParticipants,
+            gameSchedules,
+            data.scheduleSettings
           );
 
           // 최초 저장 후 실시간 구독 시작
@@ -2392,8 +3292,40 @@
         invalidateResult();
       });
 
-      groupSettingList.addEventListener("input", () => {
+      function refreshGroupConfiguration(options = {}) {
+        syncGroupOptionAvailability(options);
         updateConfigurationSummary();
+        renderNameFields();
+        clearMessage();
+        invalidateResult();
+      }
+
+      groupSettingList.addEventListener("input", (event) => {
+        if (event.target.matches("select")) {
+          return;
+        }
+
+        if (event.target.matches(".group-capacity-input")) {
+          mirrorPairedCapacity(event.target);
+        }
+
+        refreshGroupConfiguration();
+      });
+
+      groupSettingList.addEventListener("change", (event) => {
+        const sourceCard = event.target.closest(".group-setting-card");
+
+        if (event.target.matches(".group-capacity-input")) {
+          mirrorPairedCapacity(event.target, { clamp: true });
+        }
+
+        refreshGroupConfiguration({
+          sourceCard,
+          reconcilePairs: event.target.matches(".pair-group-input")
+        });
+      });
+
+      twelvePlayerMode.addEventListener("change", () => {
         renderNameFields();
         clearMessage();
         invalidateResult();
