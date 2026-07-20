@@ -26,6 +26,8 @@
       --loss-soft: #fff1f0;
       --draw: #72570a;
       --draw-soft: #fff8da;
+      --cancel: #7a4b4b;
+      --cancel-soft: #f7eeee;
       --shadow: 0 16px 40px rgba(28, 65, 55, 0.09);
       --radius-lg: 22px;
       --radius-md: 14px;
@@ -194,9 +196,88 @@
     .message.warning { color: var(--warning); background: var(--warning-soft); border: 1px solid #f1d4a6; }
     .message.success { color: var(--success); background: var(--success-soft); border: 1px solid #bfe2d5; }
 
+    .ranking-mode-panel {
+      padding: 16px;
+      margin: 0 0 18px;
+      background: #f7fbf9;
+      border: 1px solid #cfe2db;
+      border-radius: 16px;
+    }
+
+    .ranking-mode-panel legend {
+      padding: 0 7px;
+      color: #29483f;
+      font-size: 0.95rem;
+      font-weight: 950;
+    }
+
+    .ranking-mode-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .ranking-mode-option {
+      position: relative;
+      display: block;
+      cursor: pointer;
+    }
+
+    .ranking-mode-option input {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .ranking-mode-copy {
+      display: block;
+      min-height: 100%;
+      padding: 14px 15px;
+      background: #fff;
+      border: 2px solid #d7e6e0;
+      border-radius: 13px;
+      transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .ranking-mode-copy strong {
+      display: block;
+      color: #29483f;
+      font-size: 1rem;
+      font-weight: 950;
+    }
+
+    .ranking-mode-copy small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 750;
+      line-height: 1.45;
+    }
+
+    .ranking-mode-option input:checked + .ranking-mode-copy {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(23,108,91,0.09);
+    }
+
+    .ranking-mode-option input:focus-visible + .ranking-mode-copy {
+      outline: 3px solid rgba(23,108,91,0.24);
+      outline-offset: 2px;
+    }
+
+    .ranking-mode-help {
+      margin: 10px 2px 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
     .result-summary {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
       gap: 10px;
       margin-bottom: 18px;
     }
@@ -326,6 +407,26 @@
     .score-pill.loss { color: var(--loss); background: var(--loss-soft); border: 1px solid #f2c6c2; }
     .score-pill.draw { color: var(--draw); background: var(--draw-soft); border: 1px solid #eadb91; }
     .score-pill.pending { color: #87948f; background: #f0f4f2; border: 1px solid #dce5e1; }
+    .score-pill.excluded {
+      color: var(--cancel);
+      background: var(--cancel-soft);
+      border: 1px dashed #cdaaaa;
+      gap: 1px;
+      opacity: 0.88;
+    }
+    .score-pill.excluded .score-value {
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+    }
+    .score-pill .exclude-label {
+      display: block;
+      color: var(--danger);
+      font-size: 0.62rem;
+      font-weight: 950;
+      line-height: 1;
+      text-decoration: none;
+    }
+    .excluded-cell { background: #fcf8f8 !important; }
 
     .plus { color: var(--success); }
     .minus { color: var(--loss); }
@@ -345,6 +446,7 @@
     .legend .win-dot { background: var(--success-soft); border: 1px solid #9fd0bd; }
     .legend .loss-dot { background: var(--loss-soft); border: 1px solid #e8aaa5; }
     .legend .pending-dot { background: #f0f4f2; border: 1px solid #cdd9d4; }
+    .legend .excluded-dot { background: var(--cancel-soft); border: 1px dashed #cdaaaa; }
 
     .empty-state {
       padding: 32px 18px;
@@ -369,6 +471,7 @@
       .panel-heading { display: grid; }
       .summary-badge { width: fit-content; }
       .result-summary { grid-template-columns: 1fr 1fr; }
+      .ranking-mode-options { grid-template-columns: 1fr; }
       .page-switcher a { padding-inline: 5px; font-size: 0.76rem; }
       .standing-card { margin-inline: -4px; }
     }
@@ -385,7 +488,7 @@
     <header class="hero">
       <p class="eyebrow">Tennis Standings</p>
       <h1>경기 결과 및 조별 순위</h1>
-      <p>확정된 경기 스코어를 선수별로 반영하여 승·패·득점·실점·득실차와 잠정 순위를 자동 계산합니다.</p>
+      <p>확정된 경기 스코어를 선수별로 반영하고, 4경기 전체 집계 또는 선수별 3경기 균등 집계를 선택해 순위를 계산합니다.</p>
     </header>
 
     <div class="layout">
@@ -409,6 +512,28 @@
           </div>
           <div id="statusBadge" class="summary-badge">집계 대기</div>
         </div>
+
+        <fieldset class="ranking-mode-panel">
+          <legend>순위 집계 방식</legend>
+          <div class="ranking-mode-options">
+            <label class="ranking-mode-option">
+              <input type="radio" name="rankingMode" value="all4" checked />
+              <span class="ranking-mode-copy">
+                <strong>4경기 전체 집계</strong>
+                <small>확정된 모든 경기 결과를 승·패·득점·실점과 순위에 반영합니다.</small>
+              </span>
+            </label>
+            <label class="ranking-mode-option">
+              <input type="radio" name="rankingMode" value="best3" />
+              <span class="ranking-mode-copy">
+                <strong>3경기 균등 집계</strong>
+                <small>4경기 완료 선수는 득실차가 가장 불리한 1경기를 제외하고, 3경기 완료 선수는 모두 반영합니다.</small>
+              </span>
+            </label>
+          </div>
+          <p id="rankingModeHelp" class="ranking-mode-help">현재 확정된 모든 경기를 집계합니다.</p>
+        </fieldset>
+
         <div id="resultSummary" class="result-summary"></div>
         <div id="standingList" class="standing-list">
           <div class="empty-state">경기 결과를 불러오고 있습니다.</div>
@@ -417,6 +542,7 @@
           <span><i class="win-dot"></i>승리 스코어</span>
           <span><i class="loss-dot"></i>패배 스코어</span>
           <span><i class="pending-dot"></i>미확정 경기</span>
+          <span><i class="excluded-dot"></i>3경기 집계에서 제외된 경기</span>
         </div>
       </section>
     </div>
@@ -446,6 +572,8 @@
       const mainPageLink = document.getElementById("mainPageLink");
       const scorePageLink = document.getElementById("scorePageLink");
       const resultsPageLink = document.getElementById("resultsPageLink");
+      const rankingModeInputs = Array.from(document.querySelectorAll('input[name="rankingMode"]'));
+      const rankingModeHelp = document.getElementById("rankingModeHelp");
 
       const params = new URLSearchParams(window.location.search);
       const eventId = params.get("event") || "";
@@ -455,6 +583,14 @@
       let scoreRows = new Map();
       let scoreChannel = null;
       let eventChannel = null;
+      const rankingModeStorageKey = `tennis-ranking-mode:${eventId || "default"}`;
+      let rankingMode = "all4";
+
+      try {
+        rankingMode = localStorage.getItem(rankingModeStorageKey) === "best3" ? "best3" : "all4";
+      } catch (error) {
+        rankingMode = "all4";
+      }
 
       function normalizeText(value) {
         return String(value || "").replace(/\s+/g, " ").trim();
@@ -538,6 +674,15 @@
         return POSITION_SYMBOLS[index] || String(index + 1);
       }
 
+      function compareWorstMatches(a, b) {
+        const marginA = a.pointsFor - a.pointsAgainst;
+        const marginB = b.pointsFor - b.pointsAgainst;
+        return (marginA - marginB) ||
+          (a.pointsFor - b.pointsFor) ||
+          (b.pointsAgainst - a.pointsAgainst) ||
+          (b.gameNumber - a.gameNumber);
+      }
+
       function buildStandings() {
         const assignments = eventData?.draw_data?.assignments || [];
         const schedules = eventData?.draw_data?.gameSchedules || [];
@@ -569,6 +714,9 @@
               pointsFor: 0,
               pointsAgainst: 0,
               difference: 0,
+              confirmedMatchCount: 0,
+              countedMatchCount: 0,
+              excludedMatchCount: 0,
               rank: null
             };
             group.players.push(player);
@@ -603,11 +751,6 @@
                 if (pointsFor > pointsAgainst) outcome = "win";
                 else if (pointsFor < pointsAgainst) outcome = "loss";
                 else outcome = "draw";
-
-                player.pointsFor += pointsFor;
-                player.pointsAgainst += pointsAgainst;
-                if (outcome === "win") player.wins += 1;
-                if (outcome === "loss") player.losses += 1;
               }
 
               player.matches.push({
@@ -617,7 +760,8 @@
                 confirmed,
                 pointsFor,
                 pointsAgainst,
-                outcome
+                outcome,
+                excluded: false
               });
             };
 
@@ -626,10 +770,42 @@
           });
         });
 
+        let excludedPlayerResults = 0;
+        let totalPlayers = 0;
+        let playersMeetingRequirement = 0;
+        const requiredMatches = rankingMode === "best3" ? 3 : 4;
+
         groups.forEach((group) => {
           group.players.forEach((player) => {
+            totalPlayers += 1;
             player.matches.sort((a, b) => a.gameNumber - b.gameNumber);
+            const confirmedMatches = player.matches.filter((match) => match.confirmed);
+            player.confirmedMatchCount = confirmedMatches.length;
+
+            if (rankingMode === "best3" && confirmedMatches.length > 3) {
+              const excludeCount = confirmedMatches.length - 3;
+              [...confirmedMatches]
+                .sort(compareWorstMatches)
+                .slice(0, excludeCount)
+                .forEach((match) => {
+                  match.excluded = true;
+                  excludedPlayerResults += 1;
+                });
+            }
+
+            const countedMatches = confirmedMatches.filter((match) => !match.excluded);
+            player.countedMatchCount = countedMatches.length;
+            player.excludedMatchCount = confirmedMatches.length - countedMatches.length;
+
+            countedMatches.forEach((match) => {
+              player.pointsFor += match.pointsFor;
+              player.pointsAgainst += match.pointsAgainst;
+              if (match.outcome === "win") player.wins += 1;
+              if (match.outcome === "loss") player.losses += 1;
+            });
+
             player.difference = player.pointsFor - player.pointsAgainst;
+            if (player.confirmedMatchCount >= requiredMatches) playersMeetingRequirement += 1;
           });
 
           const ranked = [...group.players].sort((a, b) =>
@@ -649,12 +825,24 @@
           });
         });
 
-        return { groups, totalGames, confirmedGames };
+        return {
+          groups,
+          totalGames,
+          confirmedGames,
+          excludedPlayerResults,
+          totalPlayers,
+          playersMeetingRequirement,
+          requiredMatches,
+          rankingComplete: totalPlayers > 0 && playersMeetingRequirement === totalPlayers
+        };
       }
 
       function createScoreCell(match) {
-        const cell = createElement("td", "match-cell");
-        const pill = createElement("span", `score-pill ${match?.outcome || "pending"}`);
+        const cell = createElement("td", `match-cell${match?.excluded ? " excluded-cell" : ""}`);
+        const pillClass = match?.excluded
+          ? "score-pill excluded"
+          : `score-pill ${match?.outcome || "pending"}`;
+        const pill = createElement("span", pillClass);
 
         if (!match || !match.confirmed) {
           pill.textContent = "-";
@@ -662,8 +850,15 @@
             ? `${match.scheduleTitle} 게임 ${match.gameNumber} · 스코어 미확정`
             : "배정된 경기가 없습니다.";
         } else {
-          pill.textContent = `${match.pointsFor}:${match.pointsAgainst}`;
-          pill.title = `${match.scheduleTitle} 게임 ${match.gameNumber}`;
+          const scoreValue = createElement("span", "score-value", `${match.pointsFor}:${match.pointsAgainst}`);
+          pill.appendChild(scoreValue);
+
+          if (match.excluded) {
+            pill.appendChild(createElement("small", "exclude-label", "집계 제외"));
+            pill.title = `${match.scheduleTitle} 게임 ${match.gameNumber} · 3경기 균등 집계에서 가장 불리한 경기로 제외`;
+          } else {
+            pill.title = `${match.scheduleTitle} 게임 ${match.gameNumber}`;
+          }
         }
 
         cell.appendChild(pill);
@@ -678,7 +873,11 @@
           ? "한울 AA"
           : `한울 AB${group.pairGroup ? ` · ${group.pairGroup}` : ""}`;
         titleWrap.append(createElement("span", "", `${modeText} · 추첨 순번 기준`), createElement("h3", "", group.name));
-        header.append(titleWrap, createElement("span", "summary-badge", `${group.players.length}명`));
+        const groupExcludedCount = group.players.reduce((sum, player) => sum + player.excludedMatchCount, 0);
+        const groupBadgeText = groupExcludedCount > 0
+          ? `${group.players.length}명 · 제외 ${groupExcludedCount}건`
+          : `${group.players.length}명`;
+        header.append(titleWrap, createElement("span", "summary-badge", groupBadgeText));
 
         const maxMatches = Math.max(4, ...group.players.map((player) => player.matches.length));
         const scroll = createElement("div", "table-scroll");
@@ -726,19 +925,43 @@
         return card;
       }
 
+      function updateRankingModeUi() {
+        rankingModeInputs.forEach((input) => {
+          input.checked = input.value === rankingMode;
+        });
+
+        rankingModeHelp.textContent = rankingMode === "best3"
+          ? "선수별 확정 경기 중 최대 3경기만 반영합니다. 4경기 완료 선수는 득실차가 가장 낮은 경기 1개가 자동 제외됩니다."
+          : "현재 확정된 모든 경기를 집계합니다. 선수별 4경기가 모두 확정되면 최종 순위로 표시됩니다.";
+      }
+
       function renderStandings() {
         if (!eventData) return;
-        const { groups, totalGames, confirmedGames } = buildStandings();
+        const {
+          groups,
+          totalGames,
+          confirmedGames,
+          excludedPlayerResults,
+          totalPlayers,
+          playersMeetingRequirement,
+          requiredMatches,
+          rankingComplete
+        } = buildStandings();
         const pendingGames = Math.max(0, totalGames - confirmedGames);
-        const complete = totalGames > 0 && confirmedGames === totalGames;
+        const modeLabel = rankingMode === "best3" ? "3경기 균등" : "4경기 전체";
 
         resultSummary.replaceChildren(
-          createSummaryCard("전체 경기", `${totalGames}경기`),
-          createSummaryCard("확정 완료", `${confirmedGames}경기`),
-          createSummaryCard("미확정", `${pendingGames}경기`),
-          createSummaryCard("순위 상태", complete ? "최종" : "잠정")
+          createSummaryCard("집계 방식", modeLabel),
+          createSummaryCard("확정 경기", `${confirmedGames}/${totalGames}`),
+          createSummaryCard("기준 충족 선수", `${playersMeetingRequirement}/${totalPlayers}명`),
+          createSummaryCard("집계 제외", `${excludedPlayerResults}건`),
+          createSummaryCard("미확정 경기", `${pendingGames}경기`),
+          createSummaryCard("순위 상태", rankingComplete ? "최종" : "잠정")
         );
-        statusBadge.textContent = complete ? "최종 순위" : "잠정 순위";
+
+        statusBadge.textContent = rankingComplete
+          ? `${requiredMatches}경기 기준 최종 순위`
+          : `${requiredMatches}경기 기준 잠정 순위`;
 
         standingList.replaceChildren();
         if (!groups.length) {
@@ -747,9 +970,28 @@
         }
 
         const fragment = document.createDocumentFragment();
-        groups.forEach((group) => fragment.appendChild(createStandingCard(group, complete)));
+        groups.forEach((group) => fragment.appendChild(createStandingCard(group, rankingComplete)));
         standingList.appendChild(fragment);
       }
+
+      function changeRankingMode(nextMode) {
+        rankingMode = nextMode === "best3" ? "best3" : "all4";
+        try {
+          localStorage.setItem(rankingModeStorageKey, rankingMode);
+        } catch (error) {
+          console.warn("집계 방식 저장 실패:", error);
+        }
+        updateRankingModeUi();
+        renderStandings();
+      }
+
+      rankingModeInputs.forEach((input) => {
+        input.addEventListener("change", () => {
+          if (input.checked) changeRankingMode(input.value);
+        });
+      });
+
+      updateRankingModeUi();
 
       async function loadEvent() {
         if (!eventId) {
@@ -782,7 +1024,7 @@
         const assignments = eventData.draw_data?.assignments || [];
         const schedules = eventData.draw_data?.gameSchedules || [];
         eventTitle.textContent = eventData.title || "모닝스타 테니스 경기";
-        eventDescription.textContent = "확정된 스코어를 기준으로 조별 선수 성적과 순위를 집계합니다.";
+        eventDescription.textContent = "확정된 스코어를 기준으로 조별 선수 성적을 집계하며, 경기 수가 다른 경우 3경기 균등 집계를 선택할 수 있습니다.";
         roundBadge.textContent = `${eventData.draw_round || 1}회차`;
         eventMeta.replaceChildren(
           createElement("span", "meta-chip", `참가자 ${eventData.draw_data?.totalParticipants || 0}명`),
