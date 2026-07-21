@@ -1,12 +1,12 @@
-<!doctype html>
-<html lang="ko">
+<!DOCTYPE html>
 
+<html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#174f46" />
-  <title>테니스 조 추첨 · 경기 생성</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#174f46" name="theme-color"/>
+<title>테니스 조 추첨 · 경기 생성</title>
+<style>
     :root {
       --bg: #f3f7f5;
       --surface: #ffffff;
@@ -1396,135 +1396,148 @@
         transition-duration: 0.01ms !important;
       }
     }
-  </style>
+  
+
+    /* v6 mobile-first compact layout */
+    .app-shell { padding-top: 18px; padding-bottom: 28px; }
+    .hero { padding: 18px 22px; margin-bottom: 12px; border-radius: 20px; }
+    .hero h1 { font-size: clamp(1.65rem, 7vw, 2.35rem); }
+    .hero-brand { margin-top: 7px; }
+    .layout { gap: 12px; }
+    .panel { padding: 18px; border-radius: 18px; }
+    .panel-heading { margin-bottom: 12px; }
+    .top-setting { grid-template-columns: minmax(0, 1.6fr) minmax(130px, .7fr); gap: 10px; padding: 12px; margin-bottom: 12px; }
+    .schedule-option-panel { padding: 12px; margin-bottom: 12px; }
+    .group-setting-list { gap: 9px; }
+    .group-setting-card { padding: 10px; gap: 9px; }
+    .participant-toolbar { padding: 12px; margin-bottom: 12px; }
+    .grouped-name-list { gap: 10px; }
+    .group-participant-header { padding: 11px 13px; }
+    .group-name-body { padding: 11px 13px 13px; }
+    .name-grid { gap: 8px; }
+    .name-card { padding: 7px; gap: 7px; }
+    .action-bar { gap: 8px; }
+    .button { min-height: 46px; }
+    .result-card-header, .pair-result-header, .game-schedule-header { padding: 12px 14px; }
+    .member-list { padding: 3px 13px 8px; }
+    .member-list li { padding: 8px 0; }
+    .member-name { font-size: 1.08rem; }
+    .game-list { gap: 7px; padding: 9px; }
+    .game-row { padding: 8px; gap: 7px; }
+    .game-player-name { font-size: 1.02rem; }
+    .share-panel { padding: 12px; }
+
+    @media (max-width: 720px) {
+      .app-shell { width: min(100% - 12px, 1120px); padding: 8px 0 20px; }
+      .page-switcher { top: 4px; gap: 4px; padding: 4px; margin-bottom: 8px; border-radius: 12px; }
+      .page-switcher a { min-height: 36px; padding: 5px 3px; font-size: .72rem; border-radius: 8px; }
+      .hero { padding: 14px 16px; margin-bottom: 8px; border-radius: 15px; }
+      .hero .eyebrow { margin-bottom: 4px; font-size: .68rem; }
+      .hero h1 { font-size: 1.55rem; }
+      .hero-brand { margin-top: 5px; font-size: .76rem; }
+      .panel { padding: 12px 10px; border-radius: 14px; }
+      .panel-heading { margin-bottom: 9px; gap: 7px; }
+      .panel-heading h2 { font-size: 1.08rem; }
+      .summary-badge { padding: 5px 8px; font-size: .74rem; }
+      .top-setting { grid-template-columns: 1fr; padding: 9px; gap: 8px; }
+      input, select { min-height: 42px; padding: 8px 10px; }
+      .group-setting-card { grid-template-columns: 34px minmax(0,1fr) 84px; padding: 8px; }
+      .group-index { width: 34px; height: 42px; }
+      .pair-field, .seed-field { grid-column: 2 / -1; }
+      .participant-toolbar { grid-template-columns: 1fr; padding: 9px; gap: 8px; }
+      .participant-total strong { font-size: 1.25rem; }
+      .group-participant-header { padding: 9px 10px; }
+      .group-name-body { padding: 8px 9px 10px; }
+      .name-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; }
+      .name-card { grid-template-columns: 28px minmax(0,1fr); padding: 5px; }
+      .name-index { width: 28px; height: 32px; }
+      .name-card input { min-height: 38px; padding: 6px 8px; }
+      .result-grid { gap: 8px; }
+      .result-card-header h3, .pair-result-title h3, .game-schedule-title h3 { font-size: 1rem; }
+      .member-name { font-size: 1rem; }
+      .game-player-name { font-size: .94rem; }
+      .game-player-position { font-size: .7rem; }
+    }
+</style>
 </head>
-
 <body>
-  <main class="app-shell">
-    <nav class="page-switcher" aria-label="페이지 이동">
-      <a id="mainPageLink" class="active" href="./index.html" aria-current="page">1. 추첨·대진 생성</a>
-      <a id="scorePageLink" class="is-disabled" href="#" aria-disabled="true">2. 경기 스코어</a>
-      <a id="resultsPageLink" class="is-disabled" href="#" aria-disabled="true">3. 경기 결과</a>
-    </nav>
-    <header class="hero">
-      <p class="eyebrow">Tennis Group Draw</p>
-      <h1>테니스 조 추첨</h1>
-      <div class="hero-brand" aria-label="제작자 KCS, 모닝스타 클럽">
-        <span>KCS</span>
-        <span class="brand-dot" aria-hidden="true">◆</span>
-        <span class="club-name">모닝스타</span>
-      </div>
-      <p>
-        조별 참가자를 추첨한 뒤 인원수에 맞는 한울 AA/AB 경기표를 적용하여 복식 경기 대진까지 자동 생성합니다.
-        같은 페어 그룹으로 묶은 두 조는 AB 방식으로, 미지정 조는 AA 방식으로 배정됩니다.
-      </p>
-    </header>
+<main class="app-shell">
+<nav aria-label="페이지 이동" class="page-switcher">
+<a aria-current="page" class="active" href="./index.html" id="mainPageLink">1. 추첨·대진 생성</a>
+<a aria-disabled="true" class="is-disabled" href="#" id="scorePageLink">2. 경기 스코어</a>
+<a aria-disabled="true" class="is-disabled" href="#" id="resultsPageLink">3. 경기 결과</a>
+</nav>
+<header class="hero">
+<p class="eyebrow">Tennis Group Draw</p>
+<h1>테니스 조 추첨</h1>
+<div aria-label="제작자 KCS, 모닝스타 클럽" class="hero-brand">
+<span>KCS</span>
+<span aria-hidden="true" class="brand-dot">◆</span>
+<span class="club-name">모닝스타</span>
+</div>
 
-    <form id="drawForm" class="layout" novalidate>
-      <section class="panel" aria-labelledby="groupSettingTitle">
-        <div class="panel-heading">
-          <div>
-            <h2 id="groupSettingTitle">1. 조·페어 그룹·인원 설정</h2>
-            <p>조 이름 → 페어 그룹 → 참가 인원수 → 시드 배정 순서로 설정합니다.</p>
-          </div>
-          <div id="groupSummary" class="summary-badge" aria-live="polite">4개 조 · 0명</div>
-        </div>
+</header>
+<form class="layout" id="drawForm" novalidate="">
+<section aria-labelledby="groupSettingTitle" class="panel">
+<div class="panel-heading">
+<div>
+<h2 id="groupSettingTitle">조·페어 그룹·인원 설정</h2>
 
-        <div class="top-setting">
-          <label class="field" for="totalGroupCount">
-            <span class="field-label">전체 조 개수</span>
-            <input id="totalGroupCount" name="totalGroupCount" type="number" inputmode="numeric" min="1" max="30"
-              step="1" value="4" autocomplete="off" />
-          </label>
+</div>
+<div aria-live="polite" class="summary-badge" id="groupSummary">4개 조 · 0명</div>
+</div>
+<div class="top-setting"><label class="field" for="eventTitleInput"><span class="field-label">대회명</span><input autocomplete="off" id="eventTitleInput" maxlength="60" name="eventTitle" placeholder="예: 7월 모닝스타 월례대회" type="text" value="모닝스타 테니스 경기"/></label><label class="field" for="totalGroupCount"><span class="field-label">전체 조 개수</span><input autocomplete="off" id="totalGroupCount" inputmode="numeric" max="30" min="1" name="totalGroupCount" step="1" type="number" value="4"/></label></div>
 
-          <div class="top-setting-copy">
-            <strong>입력한 수만큼 조 설정란을 자동 생성합니다.</strong>
-            <p>페어 그룹 미지정은 AA 방식(5~16명), 같은 페어 그룹을 지정한 두 조는 AB 방식(각 조 4~8명)으로 자동 전환됩니다.</p>
-          </div>
-        </div>
+<div aria-disabled="true" class="schedule-option-panel is-disabled">
+<label class="field" for="twelvePlayerMode">
+<span class="field-label">12명 AA 경기표</span>
+<select disabled="" id="twelvePlayerMode" name="twelvePlayerMode">
+<option value="2court">2코트용 경기표</option>
+<option value="3court">3코트용 경기표</option>
+</select>
+</label>
 
-        <div class="pairing-guide">
-          <span aria-hidden="true">🎾</span>
-          <span>
-            <strong>경기표 적용 방식:</strong> 페어 그룹 미지정 조는 한울 AA 경기표, 같은 페어 그룹을 선택한 두 조는 한울 AB 경기표를 적용합니다.
-            AB 쌍이 완성되면 두 조의 인원수가 같은 색으로 표시되고 4~8명으로 제한되며, 한쪽 값을 바꾸면 다른 조도 자동으로 같은 값으로 변경됩니다.
-          </span>
-        </div>
+</div>
+<div class="group-setting-list" id="groupSettingList"></div>
+<div aria-live="polite" class="allocation-preview" id="allocationPreview"></div>
+</section>
+<section aria-labelledby="participantTitle" class="panel">
+<div class="panel-heading">
+<div>
+<h2 id="participantTitle">조별 참가자 이름 입력</h2>
 
-        <div class="schedule-option-panel is-disabled" aria-disabled="true">
-          <label class="field" for="twelvePlayerMode">
-            <span class="field-label">12명 AA 경기표</span>
-            <select id="twelvePlayerMode" name="twelvePlayerMode" disabled>
-              <option value="2court">2코트용 경기표</option>
-              <option value="3court">3코트용 경기표</option>
-            </select>
-          </label>
-          <div class="schedule-option-copy">
-            <strong>12명 AA 조를 먼저 설정해 주세요.</strong>
-            <p>페어 그룹 미지정(AA 방식) 조의 참가 인원이 12명일 때만 선택할 수 있습니다.</p>
-          </div>
-        </div>
+</div>
+</div>
+<div class="participant-toolbar">
+<div class="participant-total">
+<span>필요한 전체 참가 인원</span>
+<strong id="participantTotalText">0명</strong>
+</div>
+<div class="progress-wrap">
+<div class="progress-meta">
+<span>전체 이름 입력 현황</span>
+<span id="nameProgressText">0 / 0명</span>
+</div>
+<div aria-label="전체 참가자 이름 입력 현황" aria-valuemax="0" aria-valuemin="0" aria-valuenow="0" class="progress-track" id="progressTrack" role="progressbar">
+<div class="progress-bar" id="nameProgressBar"></div>
+</div>
 
-        <div id="groupSettingList" class="group-setting-list"></div>
-        <div id="allocationPreview" class="allocation-preview" aria-live="polite"></div>
-      </section>
+</div>
+</div>
+<div class="grouped-name-list" id="nameFields">
+<div class="empty-state">각 조의 참가 인원수를 입력하면 조별 이름 입력칸이 표시됩니다.</div>
+</div>
+</section>
+<section aria-labelledby="drawActionTitle" class="panel">
+<div class="panel-heading">
+<div>
+<h2 id="drawActionTitle">추첨·페어·경기 대진 생성</h2>
 
-      <section class="panel" aria-labelledby="participantTitle">
-        <div class="panel-heading">
-          <div>
-            <h2 id="participantTitle">2. 조별 참가자 이름 입력</h2>
-            <p>각 조에 설정한 인원수만큼 이름칸이 별도로 생성됩니다.</p>
-          </div>
-        </div>
+</div>
+</div>
 
-        <div class="participant-toolbar">
-          <div class="participant-total">
-            <span>필요한 전체 참가 인원</span>
-            <strong id="participantTotalText">0명</strong>
-          </div>
-
-          <div class="progress-wrap">
-            <div class="progress-meta">
-              <span>전체 이름 입력 현황</span>
-              <span id="nameProgressText">0 / 0명</span>
-            </div>
-            <div id="progressTrack" class="progress-track" role="progressbar" aria-label="전체 참가자 이름 입력 현황"
-              aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
-              <div id="nameProgressBar" class="progress-bar"></div>
-            </div>
-            <p class="helper-text">각 명단은 조별로 분리됩니다. 페어 그룹을 설정해도 참가자가 다른 조로 이동하지 않고, 무작위 순번만 연결됩니다.</p>
-          </div>
-        </div>
-
-        <div id="nameFields" class="grouped-name-list">
-          <div class="empty-state">각 조의 참가 인원수를 입력하면 조별 이름 입력칸이 표시됩니다.</div>
-        </div>
-      </section>
-
-      <section class="panel" aria-labelledby="drawActionTitle">
-        <div class="panel-heading">
-          <div>
-            <h2 id="drawActionTitle">3. 추첨·페어·경기 대진 생성</h2>
-            <p>추첨 번호를 기준으로 한울 AA/AB 경기표에 참가자를 자동 배정합니다.</p>
-          </div>
-        </div>
-
-        <div class="fairness-note">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 3 4.5 6v5.5c0 4.7 3.2 7.9 7.5 9.5 4.3-1.6 7.5-4.8 7.5-9.5V6L12 3Z" stroke="currentColor"
-              stroke-width="1.8" stroke-linejoin="round" />
-            <path d="m8.8 12 2 2 4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-          <span>
-            각 조의 참가자는 해당 조 안에서만 안전한 난수로 섞습니다. 시드 적용 조는 경기표의 시드 번호가 고정되며,
-            재추첨 시 새로운 추첨 순서와 그 순서에 따른 경기 대진이 함께 생성됩니다.
-          </span>
-        </div>
-
-        <div id="messageBox" class="message" role="alert" aria-live="assertive"></div>
-
-        <div id="adminLoginPanel" style="
+<div aria-live="assertive" class="message" id="messageBox" role="alert"></div>
+<div id="adminLoginPanel" style="
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
     gap: 10px;
@@ -1534,60 +1547,50 @@
     border: 1px solid #d2e6df;
     border-radius: 14px;
   ">
-          <input id="adminEmail" type="email" placeholder="관리자 이메일" autocomplete="username" />
-
-          <input id="adminPassword" type="password" placeholder="관리자 비밀번호" autocomplete="current-password" />
-
-          <button id="adminLoginButton" class="button button-secondary" type="button">
+<input autocomplete="username" id="adminEmail" placeholder="관리자 이메일" type="email"/>
+<input autocomplete="current-password" id="adminPassword" placeholder="관리자 비밀번호" type="password"/>
+<button class="button button-secondary" id="adminLoginButton" type="button">
             관리자 로그인
           </button>
-        </div>
-
-        <div id="adminStatus" class="pairing-guide" style="display: none; margin-bottom: 16px;">
+</div>
+<div class="pairing-guide" id="adminStatus" style="display: none; margin-bottom: 16px;">
           관리자 로그인 상태
         </div>
+<div class="action-bar">
+<button class="button button-primary" disabled="" id="drawButton" type="submit">추첨 및 경기 생성</button>
+<button class="button button-secondary" disabled="" id="retryButton" type="button">재추첨 및 경기 재생성</button>
+</div>
+</section>
+</form>
+<section aria-labelledby="resultTitle" class="panel result-panel" id="resultPanel">
+<div class="panel-heading">
+<div>
+<h2 id="resultTitle">추첨 번호 및 경기 대진 결과</h2>
+<p hidden="" id="resultDescription"></p>
+</div>
+<div class="summary-badge" id="roundBadge">1회차</div>
+</div>
+<div class="result-meta" id="resultMeta"></div>
+<div class="share-panel" hidden="" id="sharePanel">
+<div class="share-panel-copy">
+<strong>사용자 공유 주소</strong>
 
-        <div class="action-bar">
-          <button id="drawButton" class="button button-primary" type="submit" disabled>추첨 및 경기 생성</button>
-          <button id="retryButton" class="button button-secondary" type="button" disabled>재추첨 및 경기 재생성</button>
-        </div>
-      </section>
-    </form>
+</div>
+<div class="share-url-row">
+<input aria-label="사용자 공유 주소" id="shareUrlInput" readonly="" type="text"/>
+<button class="button button-secondary" id="copyShareUrlButton" type="button">공유 주소 복사</button>
+<a class="button-link" href="#" id="openScorePageButton">2페이지 열기</a>
+<a class="button-link" href="#" id="openResultsPageButton">3페이지 결과</a>
+</div>
+</div>
+<div class="result-grid" id="resultGrid"></div>
+<div class="result-section-heading game-schedule-heading">경기 대진표</div>
+<div class="game-schedule-grid" id="gameScheduleGrid"></div>
+</section>
 
-    <section id="resultPanel" class="panel result-panel" aria-labelledby="resultTitle">
-      <div class="panel-heading">
-        <div>
-          <h2 id="resultTitle">추첨 번호 및 경기 대진 결과</h2>
-          <p id="resultDescription">각 조의 참가자를 확인하세요.</p>
-        </div>
-        <div id="roundBadge" class="summary-badge">1회차</div>
-      </div>
-
-      <div id="resultMeta" class="result-meta"></div>
-
-      <div id="sharePanel" class="share-panel" hidden>
-        <div class="share-panel-copy">
-          <strong>사용자 공유 주소 · 2페이지 바로 열기</strong>
-          <p>아래 주소를 공유하면 사용자는 추첨 설정 화면이 아닌 경기 스코어 입력 페이지로 바로 접속합니다.</p>
-        </div>
-        <div class="share-url-row">
-          <input id="shareUrlInput" type="text" readonly aria-label="사용자 공유 주소" />
-          <button id="copyShareUrlButton" class="button button-secondary" type="button">공유 주소 복사</button>
-          <a id="openScorePageButton" class="button-link" href="#">2페이지 열기</a>
-          <a id="openResultsPageButton" class="button-link" href="#">3페이지 결과</a>
-        </div>
-      </div>
-      <div id="resultGrid" class="result-grid"></div>
-      <div class="result-section-heading game-schedule-heading">경기 대진표</div>
-      <div id="gameScheduleGrid" class="game-schedule-grid"></div>
-    </section>
-
-    <p class="footer-note">1페이지에서 추첨·대진을 생성하고, 2페이지에서 스코어를 입력하며, 3페이지에서 조별 순위와 경기 결과를 확인합니다.</p>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
     (() => {
       "use strict";
 
@@ -1665,6 +1668,7 @@
       };
 
       const form = document.getElementById("drawForm");
+      const eventTitleInput = document.getElementById("eventTitleInput");
       const totalGroupCountInput = document.getElementById("totalGroupCount");
       const twelvePlayerMode = document.getElementById("twelvePlayerMode");
       const groupSettingList = document.getElementById("groupSettingList");
@@ -2540,6 +2544,12 @@
       function validateAndCollect() {
         clearMessage();
 
+        const eventTitle = normalizeText(eventTitleInput.value);
+        if (!eventTitle) {
+          return focusAndReport(eventTitleInput, "대회명을 입력해 주세요.");
+        }
+        eventTitleInput.value = eventTitle;
+
         const totalGroupCount = Number(totalGroupCountInput.value);
 
         if (!Number.isInteger(totalGroupCount) || totalGroupCount < 1 || totalGroupCount > MAX_GROUPS) {
@@ -2744,6 +2754,7 @@
         }
 
         return {
+          eventTitle,
           groups,
           totalParticipants,
           pairGroupCount: pairBuckets.size,
@@ -3272,7 +3283,7 @@
       }
 
       // 추첨 결과를 Supabase에 신규 저장하거나 기존 결과 수정
-      async function saveDrawToSupabase(assignments, totalParticipants, gameSchedules, scheduleSettings) {
+      async function saveDrawToSupabase(eventTitle, assignments, totalParticipants, gameSchedules, scheduleSettings) {
 
         if (!currentAdmin) {
           throw new Error(
@@ -3284,7 +3295,7 @@
         const existingEventId = urlParams.get("event");
 
         const payload = {
-          title: "모닝스타 테니스 경기",
+          title: eventTitle,
           draw_round: drawRound,
           draw_data: {
             assignments: assignments,
@@ -3392,6 +3403,9 @@
           return;
         }
 
+        eventTitleInput.value = data.title || "모닝스타 테니스 경기";
+        document.title = `${eventTitleInput.value} · 추첨·대진`;
+
         const assignments =
           data.draw_data?.assignments || [];
 
@@ -3460,6 +3474,9 @@
               console.log("실시간 변경 수신:", payload);
 
               const updatedEvent = payload.new;
+
+              eventTitleInput.value = updatedEvent.title || eventTitleInput.value || "모닝스타 테니스 경기";
+              document.title = `${eventTitleInput.value} · 추첨·대진`;
 
               const assignments =
                 updatedEvent.draw_data?.assignments || [];
@@ -3533,6 +3550,7 @@
 
         try {
           const savedEvent = await saveDrawToSupabase(
+            data.eventTitle,
             assignments,
             data.totalParticipants,
             gameSchedules,
@@ -3563,6 +3581,11 @@
         });
 
       }
+
+      eventTitleInput.addEventListener("input", () => {
+        clearMessage();
+        invalidateResult();
+      });
 
       totalGroupCountInput.addEventListener("input", () => {
         renderGroupCards();
@@ -3672,5 +3695,4 @@
     })();
   </script>
 </body>
-
 </html>

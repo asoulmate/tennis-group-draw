@@ -1,11 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#174f46" />
-  <title>테니스 경기 결과 및 순위</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#174f46" name="theme-color"/>
+<title>테니스 경기 결과 및 순위</title>
+<style>
     :root {
       --bg: #f3f7f5;
       --surface: #ffffff;
@@ -475,83 +476,139 @@
       .page-switcher a { padding-inline: 5px; font-size: 0.76rem; }
       .standing-card { margin-inline: -4px; }
     }
-  </style>
+  
+
+    /* v6 compact standings and capture */
+    .app-shell { padding:18px 0 28px; }
+    .hero { padding:18px 22px; margin-bottom:12px; border-radius:20px; }
+    .hero h1 { font-size:clamp(1.65rem,7vw,2.35rem); }
+    .layout { gap:12px; }
+    .panel { padding:16px; border-radius:18px; }
+    .panel-heading { margin-bottom:10px; }
+    .ranking-mode-panel { padding:9px; margin-bottom:10px; }
+    .ranking-mode-options { gap:6px; }
+    .ranking-mode-copy { padding:8px 10px; border-radius:9px; }
+    .ranking-mode-copy strong { font-size:.84rem; }
+    .result-summary { grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-bottom:10px; }
+    .summary-card { padding:8px; border-radius:10px; }
+    .summary-card span { font-size:.65rem; }
+    .summary-card strong { font-size:1rem; }
+    .standing-list { gap:10px; }
+    .standing-card { border-radius:13px; }
+    .standing-header { padding:9px 11px; }
+    .standing-header span { font-size:.7rem; }
+    .standing-header h3 { font-size:1.02rem; }
+    .standing-header-actions { display:flex; align-items:center; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
+    .capture-button { min-height:30px; padding:4px 8px; color:var(--primary); background:#fff; border:1px solid #9cc5b8; border-radius:7px; font-size:.68rem; font-weight:950; cursor:pointer; }
+    .capture-button:disabled { opacity:.55; cursor:wait; }
+    .standing-table { min-width:720px; }
+    .standing-table th, .standing-table td { padding:6px 4px; }
+    .standing-table thead th { font-size:.68rem; }
+    .standing-table tbody td { font-size:.78rem; }
+    .position-cell { width:40px; font-size:.84rem !important; }
+    .name-cell { width:104px; font-size:.84rem !important; }
+    .match-cell { width:55px; }
+    .stat-cell { width:39px; font-size:.82rem !important; }
+    .rank-cell { width:45px; font-size:.9rem !important; }
+    .score-pill { min-width:44px; min-height:27px; padding:3px 5px; border-radius:6px; font-size:.76rem; }
+    .score-pill .exclude-label { font-size:.5rem; }
+    .capture-clone { position:fixed !important; left:-20000px !important; top:0 !important; z-index:-1 !important; box-shadow:none !important; }
+    .capture-clone .table-scroll { overflow:visible !important; }
+    .capture-clone .capture-button { display:none !important; }
+    .capture-title { padding:10px 12px; color:#173f36; background:#fff; border-bottom:1px solid #d6e7e1; font-size:1rem; font-weight:950; }
+
+    @media (max-width:620px) {
+      .app-shell { width:min(100% - 10px,1280px); padding:5px 0 16px; }
+      .page-switcher { top:3px; gap:3px; padding:3px; margin-bottom:6px; border-radius:10px; }
+      .page-switcher a { min-height:34px; padding:4px 2px; font-size:.69rem; border-radius:7px; }
+      .hero { padding:11px 14px; margin-bottom:6px; border-radius:13px; }
+      .hero .eyebrow { margin-bottom:2px; font-size:.62rem; }
+      .hero h1 { font-size:1.42rem; }
+      .panel { padding:9px 7px; border-radius:12px; }
+      .panel-heading { margin-bottom:6px; }
+      .panel-heading h2 { font-size:1rem; }
+      .summary-badge { padding:4px 7px; font-size:.66rem; }
+      .ranking-mode-panel { padding:6px; margin-bottom:7px; }
+      .ranking-mode-options { grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; }
+      .ranking-mode-copy { padding:6px 5px; text-align:center; }
+      .ranking-mode-copy strong { font-size:.72rem; }
+      .result-summary { grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; margin-bottom:7px; }
+      .summary-card { padding:5px 4px; }
+      .summary-card span { font-size:.55rem; }
+      .summary-card strong { font-size:.8rem; }
+      .standing-header { padding:7px 8px; }
+      .standing-card { margin-inline:0; }
+      .standing-table { min-width:680px; }
+      .standing-table th, .standing-table td { padding:5px 3px; }
+      .standing-table thead th { font-size:.62rem; }
+      .standing-table tbody td { font-size:.72rem; }
+      .name-cell { width:92px; font-size:.76rem !important; }
+      .match-cell { width:50px; }
+      .stat-cell { width:36px; font-size:.75rem !important; }
+      .score-pill { min-width:40px; font-size:.7rem; }
+      .capture-button { min-height:27px; padding:3px 6px; font-size:.62rem; }
+    }
+
+    @media (max-width: 620px) {
+      .standing-table thead th:first-child, .standing-table .position-cell { position:sticky; left:0; z-index:3; }
+      .standing-table thead th:nth-child(2), .standing-table .name-cell { position:sticky; left:40px; z-index:2; box-shadow:3px 0 5px rgba(28,65,55,.08); }
+      .standing-table thead th:first-child, .standing-table thead th:nth-child(2) { z-index:5; background:#eaf5f1; }
+    }
+</style>
 </head>
 <body>
-  <main class="app-shell">
-    <nav class="page-switcher" aria-label="페이지 이동">
-      <a id="mainPageLink" href="./index.html">1. 추첨·대진 생성</a>
-      <a id="scorePageLink" href="./scores.html">2. 경기 스코어</a>
-      <a id="resultsPageLink" class="active" href="./results.html" aria-current="page">3. 경기 결과</a>
-    </nav>
+<main class="app-shell">
+<nav aria-label="페이지 이동" class="page-switcher">
+<a href="./index.html" id="mainPageLink">1. 추첨·대진 생성</a>
+<a href="./scores.html" id="scorePageLink">2. 경기 스코어</a>
+<a aria-current="page" class="active" href="./results.html" id="resultsPageLink">3. 경기 결과</a>
+</nav>
+<header class="hero">
+<p class="eyebrow">Tennis Standings</p>
+<h1>경기 결과 및 조별 순위</h1>
+</header>
+<div class="layout"><section aria-labelledby="standingsTitle" class="panel">
+<div class="panel-heading">
+<div>
+<h2 id="standingsTitle">조별 경기 결과표</h2>
+</div>
+<div class="summary-badge" id="statusBadge">집계 대기</div>
+</div>
+<div aria-live="assertive" class="message" id="messageBox" role="alert"></div><fieldset class="ranking-mode-panel">
+<legend>순위 집계 방식</legend>
+<div class="ranking-mode-options">
+<label class="ranking-mode-option">
+<input checked="" name="rankingMode" type="radio" value="all4"/>
+<span class="ranking-mode-copy">
+<strong>4경기 전체 집계</strong>
+</span>
+</label>
+<label class="ranking-mode-option">
+<input name="rankingMode" type="radio" value="best3"/>
+<span class="ranking-mode-copy">
+<strong>3경기 균등 집계</strong>
+</span>
+</label>
+</div>
+<p hidden="" id="rankingModeHelp"></p></fieldset>
+<div class="result-summary" id="resultSummary"></div>
+<div class="standing-list" id="standingList">
+<div class="empty-state">경기 결과를 불러오고 있습니다.</div>
+</div>
+</section><section aria-labelledby="eventTitle" class="panel">
+<div class="panel-heading">
+<div>
+<h2 id="eventTitle">경기 정보 불러오는 중</h2>
+<p hidden="" id="eventDescription"></p>
+</div>
+<div class="summary-badge" id="roundBadge">-</div>
+</div>
 
-    <header class="hero">
-      <p class="eyebrow">Tennis Standings</p>
-      <h1>경기 결과 및 조별 순위</h1>
-      <p>확정된 경기 스코어를 선수별로 반영하고, 4경기 전체 집계 또는 선수별 3경기 균등 집계를 선택해 순위를 계산합니다.</p>
-    </header>
-
-    <div class="layout">
-      <section class="panel" aria-labelledby="eventTitle">
-        <div class="panel-heading">
-          <div>
-            <h2 id="eventTitle">경기 정보 불러오는 중</h2>
-            <p id="eventDescription">공유 주소의 대회 정보를 확인하고 있습니다.</p>
-          </div>
-          <div id="roundBadge" class="summary-badge">-</div>
-        </div>
-        <div id="messageBox" class="message" role="alert" aria-live="assertive"></div>
-        <div id="eventMeta" class="event-meta"></div>
-      </section>
-
-      <section class="panel" aria-labelledby="standingsTitle">
-        <div class="panel-heading">
-          <div>
-            <h2 id="standingsTitle">조별 경기 결과표</h2>
-            <p>승 수가 많은 선수가 우선이며, 승·패가 같으면 득실차가 높은 선수가 우선입니다. 기준이 모두 같으면 공동 순위입니다.</p>
-          </div>
-          <div id="statusBadge" class="summary-badge">집계 대기</div>
-        </div>
-
-        <fieldset class="ranking-mode-panel">
-          <legend>순위 집계 방식</legend>
-          <div class="ranking-mode-options">
-            <label class="ranking-mode-option">
-              <input type="radio" name="rankingMode" value="all4" checked />
-              <span class="ranking-mode-copy">
-                <strong>4경기 전체 집계</strong>
-                <small>확정된 모든 경기 결과를 승·패·득점·실점과 순위에 반영합니다.</small>
-              </span>
-            </label>
-            <label class="ranking-mode-option">
-              <input type="radio" name="rankingMode" value="best3" />
-              <span class="ranking-mode-copy">
-                <strong>3경기 균등 집계</strong>
-                <small>4경기 완료 선수는 득실차가 가장 불리한 1경기를 제외하고, 3경기 완료 선수는 모두 반영합니다.</small>
-              </span>
-            </label>
-          </div>
-          <p id="rankingModeHelp" class="ranking-mode-help">현재 확정된 모든 경기를 집계합니다.</p>
-        </fieldset>
-
-        <div id="resultSummary" class="result-summary"></div>
-        <div id="standingList" class="standing-list">
-          <div class="empty-state">경기 결과를 불러오고 있습니다.</div>
-        </div>
-        <div class="legend" aria-label="경기 결과 색상 안내">
-          <span><i class="win-dot"></i>승리 스코어</span>
-          <span><i class="loss-dot"></i>패배 스코어</span>
-          <span><i class="pending-dot"></i>미확정 경기</span>
-          <span><i class="excluded-dot"></i>3경기 집계에서 제외된 경기</span>
-        </div>
-      </section>
-    </div>
-
-    <p class="footer-note">2페이지에서 스코어가 확정·수정·초기화되면 이 페이지의 결과와 순위가 실시간으로 갱신됩니다.</p>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
+<div class="event-meta" id="eventMeta"></div>
+</section></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script><script>
     (() => {
       "use strict";
 
@@ -710,6 +767,7 @@
               originalOrder: memberIndex,
               matches: [],
               wins: 0,
+              draws: 0,
               losses: 0,
               pointsFor: 0,
               pointsAgainst: 0,
@@ -801,6 +859,7 @@
               player.pointsFor += match.pointsFor;
               player.pointsAgainst += match.pointsAgainst;
               if (match.outcome === "win") player.wins += 1;
+              if (match.outcome === "draw") player.draws += 1;
               if (match.outcome === "loss") player.losses += 1;
             });
 
@@ -810,6 +869,7 @@
 
           const ranked = [...group.players].sort((a, b) =>
             (b.wins - a.wins) ||
+            (b.draws - a.draws) ||
             (a.losses - b.losses) ||
             (b.difference - a.difference) ||
             (a.originalOrder - b.originalOrder)
@@ -818,7 +878,7 @@
           let previousSignature = null;
           let currentRank = 0;
           ranked.forEach((player, index) => {
-            const signature = `${player.wins}|${player.losses}|${player.difference}`;
+            const signature = `${player.wins}|${player.draws}|${player.losses}|${player.difference}`;
             if (signature !== previousSignature) currentRank = index + 1;
             player.rank = currentRank;
             previousSignature = signature;
@@ -877,7 +937,14 @@
         const groupBadgeText = groupExcludedCount > 0
           ? `${group.players.length}명 · 제외 ${groupExcludedCount}건`
           : `${group.players.length}명`;
-        header.append(titleWrap, createElement("span", "summary-badge", groupBadgeText));
+        const headerActions = createElement("div", "standing-header-actions");
+        headerActions.appendChild(createElement("span", "summary-badge", groupBadgeText));
+        const captureButton = createElement("button", "capture-button", "이미지 저장");
+        captureButton.type = "button";
+        captureButton.dataset.captureGroup = group.name;
+        captureButton.setAttribute("aria-label", `${group.name} 결과표 이미지 저장`);
+        headerActions.appendChild(captureButton);
+        header.append(titleWrap, headerActions);
 
         const maxMatches = Math.max(4, ...group.players.map((player) => player.matches.length));
         const scroll = createElement("div", "table-scroll");
@@ -888,7 +955,7 @@
         for (let index = 0; index < maxMatches; index += 1) {
           headRow.appendChild(createElement("th", "", `${index + 1}경기`));
         }
-        ["승", "패", "득점", "실점", "득실차", "순위"].forEach((label) => headRow.appendChild(createElement("th", "", label)));
+        ["승", "무", "패", "득", "실", "득실", "순위"].forEach((label) => headRow.appendChild(createElement("th", "", label)));
         thead.appendChild(headRow);
 
         const tbody = document.createElement("tbody");
@@ -905,6 +972,7 @@
 
           row.append(
             createElement("td", "stat-cell", String(player.wins)),
+            createElement("td", "stat-cell", String(player.draws)),
             createElement("td", "stat-cell", String(player.losses)),
             createElement("td", "stat-cell", String(player.pointsFor)),
             createElement("td", "stat-cell", String(player.pointsAgainst))
@@ -974,6 +1042,75 @@
         standingList.appendChild(fragment);
       }
 
+      function safeFileName(value) {
+        return String(value || "result")
+          .replace(/[\\/:*?"<>|]/g, "_")
+          .replace(/\s+/g, "_")
+          .slice(0, 80);
+      }
+
+      async function downloadStandingImage(button) {
+        const card = button.closest(".standing-card");
+        if (!card || typeof window.html2canvas !== "function") {
+          showMessage("이미지 저장 기능을 불러오지 못했습니다.", "error");
+          return;
+        }
+
+        button.disabled = true;
+        const originalText = button.textContent;
+        button.textContent = "생성 중";
+        let clone = null;
+        try {
+          const table = card.querySelector(".standing-table");
+          const captureWidth = Math.max(760, (table?.scrollWidth || 0) + 4);
+          clone = card.cloneNode(true);
+          clone.classList.add("capture-clone");
+          clone.style.width = `${captureWidth}px`;
+          const captureTitle = createElement(
+            "div",
+            "capture-title",
+            `${eventData?.title || "테니스 경기"} · ${button.dataset.captureGroup || "조별 결과"} · ${rankingMode === "best3" ? "3경기 균등" : "4경기 전체"}`
+          );
+          clone.insertBefore(captureTitle, clone.firstChild);
+          document.body.appendChild(clone);
+
+          const canvas = await window.html2canvas(clone, {
+            scale: 2,
+            backgroundColor: "#ffffff",
+            useCORS: true,
+            logging: false,
+            width: clone.scrollWidth,
+            height: clone.scrollHeight,
+            windowWidth: clone.scrollWidth,
+            windowHeight: clone.scrollHeight
+          });
+
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+          if (!blob) throw new Error("이미지 변환 실패");
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `${safeFileName(eventData?.title)}_${safeFileName(button.dataset.captureGroup)}_${rankingMode}.png`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          showMessage(`${button.dataset.captureGroup} 결과표 이미지를 저장했습니다.`, "success");
+        } catch (error) {
+          console.error(error);
+          showMessage(`이미지 저장 실패: ${error.message}`, "error");
+        } finally {
+          if (clone) clone.remove();
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+      }
+
+      standingList.addEventListener("click", (event) => {
+        const button = event.target.closest(".capture-button");
+        if (button) downloadStandingImage(button);
+      });
+
       function changeRankingMode(nextMode) {
         rankingMode = nextMode === "best3" ? "best3" : "all4";
         try {
@@ -1021,9 +1158,10 @@
         }
 
         eventData = data;
+        document.title = `${eventData.title || "테니스 경기"} · 경기 결과`;
         const assignments = eventData.draw_data?.assignments || [];
         const schedules = eventData.draw_data?.gameSchedules || [];
-        eventTitle.textContent = eventData.title || "모닝스타 테니스 경기";
+        eventTitle.textContent = eventData.title || "테니스 경기";
         eventDescription.textContent = "확정된 스코어를 기준으로 조별 선수 성적을 집계하며, 경기 수가 다른 경우 3경기 균등 집계를 선택할 수 있습니다.";
         roundBadge.textContent = `${eventData.draw_round || 1}회차`;
         eventMeta.replaceChildren(
