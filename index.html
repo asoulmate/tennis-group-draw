@@ -1005,7 +1005,7 @@
       top: 10px;
       z-index: 20;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       padding: 8px;
       margin-bottom: 18px;
@@ -1406,7 +1406,7 @@
     .layout { gap: 12px; }
     .panel { padding: 18px; border-radius: 18px; }
     .panel-heading { margin-bottom: 12px; }
-    .top-setting { grid-template-columns: minmax(0, 1.6fr) minmax(130px, .7fr); gap: 10px; padding: 12px; margin-bottom: 12px; }
+    .top-setting { grid-template-columns: minmax(0, 1.5fr) minmax(105px, .55fr) minmax(145px, .7fr); gap: 10px; padding: 12px; margin-bottom: 12px; }
     .schedule-option-panel { padding: 12px; margin-bottom: 12px; }
     .group-setting-list { gap: 9px; }
     .group-setting-card { padding: 10px; gap: 9px; }
@@ -1458,6 +1458,96 @@
       .game-player-name { font-size: .94rem; }
       .game-player-position { font-size: .7rem; }
     }
+
+
+    /* v8 first-page mobile optimization */
+    @media (max-width: 720px) {
+      .page-switcher { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .page-switcher a { min-width: 0; font-size: .66rem; letter-spacing: -.025em; }
+      .hero { padding: 11px 13px; }
+      .hero .eyebrow { display: none; }
+      .hero h1 { font-size: 1.36rem; }
+      .hero-brand { margin-top: 3px; font-size: .68rem; }
+      .hero-brand::before, .hero-brand::after { width: 17px; }
+      .layout { gap: 7px; }
+      .panel { padding: 9px 8px; border-radius: 12px; }
+      .panel-heading { margin-bottom: 7px; }
+      .panel-heading h2 { font-size: .98rem; }
+      .summary-badge { padding: 4px 6px; font-size: .68rem; }
+      .top-setting {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 6px;
+        padding: 7px;
+        margin-bottom: 7px;
+      }
+      .top-setting > .field:first-child { grid-column: 1 / -1; }
+      .field { gap: 3px; }
+      .field-label { font-size: .68rem; }
+      input, select { min-height: 37px; padding: 6px 7px; font-size: .82rem; border-radius: 8px; }
+      .schedule-option-panel { padding: 7px; margin-bottom: 7px; }
+      .group-setting-list { gap: 6px; }
+      .group-setting-card {
+        grid-template-columns: 29px minmax(0, 1fr) minmax(82px, .7fr);
+        grid-template-rows: auto auto auto;
+        align-items: end;
+        gap: 5px;
+        padding: 6px;
+        border-radius: 10px;
+      }
+      .group-index { grid-column: 1; grid-row: 1 / span 3; width: 29px; height: 100%; min-height: 39px; border-radius: 8px; font-size: .68rem; }
+      .group-name-field { grid-column: 2 / -1; grid-row: 1; }
+      .pair-field { grid-column: 2; grid-row: 2; }
+      .capacity-field { grid-column: 3; grid-row: 2; }
+      .seed-field { grid-column: 2 / -1; grid-row: 3; }
+      .optional-label, .capacity-pair-badge { font-size: .57rem; }
+      .allocation-preview { gap: 4px; margin-top: 7px; }
+      .allocation-chip { padding: 4px 6px; font-size: .64rem; }
+      .participant-toolbar { padding: 7px; margin-bottom: 7px; }
+      .participant-total { display: flex; align-items: center; justify-content: space-between; }
+      .participant-total span { font-size: .66rem; }
+      .participant-total strong { font-size: 1rem; }
+      .progress-meta { font-size: .65rem; }
+      .progress-track { height: 6px; }
+      .grouped-name-list { gap: 6px; }
+      .group-participant-card { border-radius: 10px; }
+      .group-participant-header { padding: 6px 8px; }
+      .group-participant-header h3 { font-size: .88rem; }
+      .group-kicker, .group-progress-text { font-size: .59rem; }
+      .group-capacity-badge { padding: 3px 5px; font-size: .62rem; }
+      .group-name-body { padding: 6px 7px 7px; }
+      .name-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+      .name-card { grid-template-columns: 25px minmax(0, 1fr); gap: 4px; padding: 4px; border-radius: 8px; }
+      .name-index { width: 25px; height: 29px; border-radius: 7px; font-size: .65rem; }
+      .name-card input { min-height: 33px; padding: 4px 6px; font-size: .8rem; }
+      #adminLoginPanel { gap: 6px !important; padding: 8px !important; margin-bottom: 8px !important; }
+      .pairing-guide { padding: 7px 8px; margin-bottom: 8px !important; font-size: .72rem; }
+      .action-bar { gap: 5px; }
+      .button { min-height: 39px; padding: 7px 8px; font-size: .76rem; border-radius: 9px; }
+      .result-panel { margin-top: 7px; }
+      .result-meta { gap: 4px; margin-bottom: 7px; }
+      .meta-chip { padding: 4px 6px; font-size: .64rem; }
+      .share-panel { padding: 7px; margin: 7px 0 8px; gap: 6px; }
+      .share-url-row { gap: 5px; }
+      .share-url-row input { font-size: .67rem; }
+      .button-link { min-height: 35px; padding: 6px; font-size: .69rem; }
+      .result-grid, .game-schedule-grid { gap: 6px; }
+      .result-card, .pair-result-card, .game-schedule-card { border-radius: 10px; }
+      .result-card-header, .pair-result-header, .game-schedule-header { padding: 7px 8px; }
+      .result-card-header h3, .pair-result-title h3, .game-schedule-title h3 { font-size: .88rem; }
+      .member-count { padding: 3px 5px; font-size: .62rem; }
+      .member-list { padding: 2px 8px 5px; }
+      .member-list li { grid-template-columns: 24px minmax(0, 1fr); padding: 5px 0; }
+      .member-number { width: 23px; height: 23px; font-size: .62rem; }
+      .member-name { font-size: .9rem; }
+      .pair-list, .game-list { padding: 5px; gap: 4px; }
+      .pair-row, .game-row { padding: 5px; gap: 4px; border-radius: 8px; }
+      .pair-number, .game-number { min-height: 31px; font-size: .64rem; border-radius: 7px; }
+      .pair-member, .game-player { padding: 5px 6px; border-radius: 7px; }
+      .pair-member-name, .game-player-name { font-size: .83rem; }
+      .pair-group-name, .game-player-position { font-size: .59rem; }
+      .result-section-heading { margin-top: 3px; font-size: .82rem; }
+    }
+
 </style>
 </head>
 <body>
@@ -1466,6 +1556,7 @@
 <a aria-current="page" class="active" href="./index.html" id="mainPageLink">1. 추첨·대진 생성</a>
 <a aria-disabled="true" class="is-disabled" href="#" id="scorePageLink">2. 경기 스코어</a>
 <a aria-disabled="true" class="is-disabled" href="#" id="resultsPageLink">3. 경기 결과</a>
+<a href="./admin.html" id="adminPageLink">관리자</a>
 </nav>
 <header class="hero">
 <p class="eyebrow">Tennis Group Draw</p>
@@ -1486,7 +1577,7 @@
 </div>
 <div aria-live="polite" class="summary-badge" id="groupSummary">4개 조 · 0명</div>
 </div>
-<div class="top-setting"><label class="field" for="eventTitleInput"><span class="field-label">대회명</span><input autocomplete="off" id="eventTitleInput" maxlength="60" name="eventTitle" placeholder="예: 7월 모닝스타 월례대회" type="text" value="모닝스타 테니스 경기"/></label><label class="field" for="totalGroupCount"><span class="field-label">전체 조 개수</span><input autocomplete="off" id="totalGroupCount" inputmode="numeric" max="30" min="1" name="totalGroupCount" step="1" type="number" value="4"/></label></div>
+<div class="top-setting"><label class="field" for="eventTitleInput"><span class="field-label">대회명</span><input autocomplete="off" id="eventTitleInput" maxlength="60" name="eventTitle" placeholder="예: 7월 모닝스타 월례대회" type="text" value="모닝스타 테니스 경기"/></label><label class="field" for="totalGroupCount"><span class="field-label">전체 조 개수</span><input autocomplete="off" id="totalGroupCount" inputmode="numeric" max="30" min="1" name="totalGroupCount" step="1" type="number" value="4"/></label><label class="field" for="drawOrderMode"><span class="field-label">추첨 순서</span><select id="drawOrderMode" name="drawOrderMode"><option value="random">무작위 추첨</option><option value="input">입력 순서 유지</option></select></label></div>
 
 <div aria-disabled="true" class="schedule-option-panel is-disabled">
 <label class="field" for="twelvePlayerMode">
@@ -1669,6 +1760,7 @@
 
       const form = document.getElementById("drawForm");
       const eventTitleInput = document.getElementById("eventTitleInput");
+      const drawOrderMode = document.getElementById("drawOrderMode");
       const totalGroupCountInput = document.getElementById("totalGroupCount");
       const twelvePlayerMode = document.getElementById("twelvePlayerMode");
       const groupSettingList = document.getElementById("groupSettingList");
@@ -2233,6 +2325,8 @@
           });
         });
 
+        const keepInputOrder = drawOrderMode.value === "input";
+
         cards.forEach((card) => {
           const pairGroup = normalizeText(card.querySelector(".pair-group-input").value);
           const capacityInput = card.querySelector(".group-capacity-input");
@@ -2251,14 +2345,16 @@
             basicCapacityInvalid ? "true" : "false"
           );
 
-          if (pairGroup || seedUnsupported) {
+          if (pairGroup || seedUnsupported || keepInputOrder) {
             seedSelect.value = "none";
             seedSelect.disabled = true;
-            seedSelect.title = pairGroup
-              ? (linkedPair
-                ? "AB 경기표에서는 별도 시드 고정을 적용하지 않습니다."
-                : "페어 그룹이 지정된 조는 AB 방식으로 사용되므로 시드 배정을 적용하지 않습니다.")
-              : "첨부 경기표에는 5명용 시드 위치가 지정되어 있지 않습니다.";
+            seedSelect.title = keepInputOrder
+              ? "입력 순서 유지 방식에서는 모든 번호가 고정되므로 별도 시드 배정이 필요하지 않습니다."
+              : pairGroup
+                ? (linkedPair
+                  ? "AB 경기표에서는 별도 시드 고정을 적용하지 않습니다."
+                  : "페어 그룹이 지정된 조는 AB 방식으로 사용되므로 시드 배정을 적용하지 않습니다.")
+                : "첨부 경기표에는 5명용 시드 위치가 지정되어 있지 않습니다.";
           } else {
             seedSelect.disabled = false;
             seedSelect.title = "첨부 AA 경기표의 인원별 시드 번호를 고정합니다.";
@@ -2759,7 +2855,8 @@
           totalParticipants,
           pairGroupCount: pairBuckets.size,
           scheduleSettings: {
-            twelvePlayerMode: twelvePlayerMode.value === "3court" ? "3court" : "2court"
+            twelvePlayerMode: twelvePlayerMode.value === "3court" ? "3court" : "2court",
+            drawOrderMode: drawOrderMode.value === "input" ? "input" : "random"
           }
         };
       }
@@ -2828,6 +2925,10 @@
       }
 
       function drawMembersForGroup(group, scheduleSettings) {
+        if (scheduleSettings?.drawOrderMode === "input") {
+          return [...group.members];
+        }
+
         if (!group.seeded || group.pairGroup) {
           return shuffledCopy(group.members);
         }
@@ -3282,8 +3383,50 @@
         ).join("");
       }
 
+      async function createAutomaticSnapshot(eventId, reason) {
+        const { error } = await db.rpc("create_tennis_event_snapshot", {
+          p_event_id: String(eventId),
+          p_reason: reason || "대진 변경 전 자동 백업"
+        });
+
+        if (error) {
+          console.error("자동 스냅샷 생성 오류:", error);
+          throw new Error(
+            error.message?.includes("create_tennis_event_snapshot")
+              ? "자동 백업 기능을 사용할 수 없습니다. 최신 Supabase 설정 SQL을 먼저 실행해 주세요."
+              : `자동 백업에 실패했습니다: ${error.message}`
+          );
+        }
+      }
+
+      function hydrateFormFromAssignments(assignments, scheduleSettings = {}) {
+        if (!Array.isArray(assignments) || assignments.length === 0) return;
+
+        totalGroupCountInput.value = String(assignments.length);
+        nameFields.replaceChildren();
+        participantDrafts = assignments.map((assignment) => [...(assignment.members || [])]);
+        renderGroupCards();
+
+        const cards = Array.from(groupSettingList.querySelectorAll(".group-setting-card"));
+        assignments.forEach((assignment, index) => {
+          const card = cards[index];
+          if (!card) return;
+          card.querySelector(".group-name-input").value = assignment.name || `${index + 1}조`;
+          card.querySelector(".pair-group-input").value = assignment.pairGroup || "";
+          card.querySelector(".group-capacity-input").value = String((assignment.members || []).length || assignment.capacity || "");
+          card.querySelector(".seed-mode-input").value = assignment.seeded ? "seeded" : "none";
+        });
+
+        drawOrderMode.value = scheduleSettings.drawOrderMode === "input" ? "input" : "random";
+        twelvePlayerMode.value = scheduleSettings.twelvePlayerMode === "3court" ? "3court" : "2court";
+        syncGroupOptionAvailability();
+        updateConfigurationSummary();
+        renderNameFields();
+        updateNameProgress();
+      }
+
       // 추첨 결과를 Supabase에 신규 저장하거나 기존 결과 수정
-      async function saveDrawToSupabase(eventTitle, assignments, totalParticipants, gameSchedules, scheduleSettings) {
+      async function saveDrawToSupabase(eventTitle, assignments, totalParticipants, gameSchedules, scheduleSettings, snapshotReason) {
 
         if (!currentAdmin) {
           throw new Error(
@@ -3310,8 +3453,10 @@
         let data;
         let error;
 
-        // 공유 주소에 event가 있으면 기존 데이터 수정
+        // 공유 주소에 event가 있으면 기존 상태를 먼저 자동 백업한 뒤 수정
         if (existingEventId) {
+          await createAutomaticSnapshot(existingEventId, snapshotReason);
+
           const response = await db
             .from("tennis_events")
             .update(payload)
@@ -3413,10 +3558,15 @@
           data.draw_data?.totalParticipants || 0;
 
         const scheduleSettings =
-          data.draw_data?.scheduleSettings || { twelvePlayerMode: "2court" };
+          data.draw_data?.scheduleSettings || { twelvePlayerMode: "2court", drawOrderMode: "random" };
+        drawOrderMode.value = scheduleSettings.drawOrderMode === "input" ? "input" : "random";
 
         const gameSchedules =
           data.draw_data?.gameSchedules || [];
+
+        if (assignments.length > 0 && currentAdmin && String(data.owner_id || "") === String(currentAdmin.id)) {
+          hydrateFormFromAssignments(assignments, scheduleSettings);
+        }
 
         if (assignments.length === 0) {
           showMessage(
@@ -3485,10 +3635,15 @@
                 updatedEvent.draw_data?.totalParticipants || 0;
 
               const scheduleSettings =
-                updatedEvent.draw_data?.scheduleSettings || { twelvePlayerMode: "2court" };
+                updatedEvent.draw_data?.scheduleSettings || { twelvePlayerMode: "2court", drawOrderMode: "random" };
+              drawOrderMode.value = scheduleSettings.drawOrderMode === "input" ? "input" : "random";
 
               const gameSchedules =
                 updatedEvent.draw_data?.gameSchedules || [];
+
+              if (assignments.length > 0 && currentAdmin && String(updatedEvent.owner_id || "") === String(currentAdmin.id)) {
+                hydrateFormFromAssignments(assignments, scheduleSettings);
+              }
 
               if (assignments.length === 0) {
                 return;
@@ -3536,6 +3691,8 @@
           return;
         }
 
+        const previousRound = drawRound;
+        const previouslyDrawn = hasDrawn;
         const assignments = data.groups.map((group) => ({
           ...group,
           members: drawMembersForGroup(group, data.scheduleSettings)
@@ -3554,7 +3711,12 @@
             assignments,
             data.totalParticipants,
             gameSchedules,
-            data.scheduleSettings
+            data.scheduleSettings,
+            isRetry && previouslyDrawn
+              ? `${previousRound}회차 재추첨 전 자동 백업`
+              : previouslyDrawn
+                ? `${previousRound}회차 대진 변경 전 자동 백업`
+                : "기존 대진 변경 전 자동 백업"
           );
 
           // 최초 저장 후 실시간 구독 시작
@@ -3628,6 +3790,12 @@
 
       twelvePlayerMode.addEventListener("change", () => {
         renderNameFields();
+        clearMessage();
+        invalidateResult();
+      });
+
+      drawOrderMode.addEventListener("change", () => {
+        syncGroupOptionAvailability();
         clearMessage();
         invalidateResult();
       });

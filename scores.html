@@ -58,7 +58,7 @@
       top: 10px;
       z-index: 20;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       padding: 8px;
       margin-bottom: 18px;
@@ -493,6 +493,13 @@
       .score-state { font-size:.55rem; }
       .admin-panel { grid-template-columns:1fr; }
     }
+
+
+    @media (max-width: 720px) {
+      .page-switcher { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .page-switcher a { font-size: .64rem; letter-spacing: -.03em; }
+    }
+
 </style>
 </head>
 <body>
@@ -501,6 +508,7 @@
 <a href="./index.html" id="mainPageLink">1. 추첨·대진 생성</a>
 <a aria-current="page" class="active" href="./scores.html" id="scorePageLink">2. 경기 스코어</a>
 <a href="./results.html" id="resultsPageLink">3. 경기 결과</a>
+<a href="./admin.html" id="adminPageLink">관리자</a>
 </nav>
 <header class="hero">
 <p class="eyebrow">Tennis Match Score</p>

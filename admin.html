@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#174f46" />
+  <title>테니스 대회 관리자</title>
+  <style>
+    :root {
+      --bg:#f3f7f5; --surface:#fff; --soft:#eef7f3; --text:#17211e; --muted:#61706b;
+      --line:#d9e4df; --primary:#176c5b; --primary-hover:#115747; --primary-soft:#dff2eb;
+      --danger:#b42318; --danger-soft:#fff1f0; --warning:#8a4b08; --warning-soft:#fff6e8;
+      --shadow:0 12px 30px rgba(28,65,55,.08);
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-width:320px;min-height:100vh;color:var(--text);background:linear-gradient(180deg,#f9fcfa,var(--bg));font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+    button,input{font:inherit} button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .app-shell{width:min(980px,calc(100% - 24px));margin:0 auto;padding:18px 0 36px}
+    .page-switcher{position:sticky;top:4px;z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;margin-bottom:9px;background:rgba(255,255,255,.94);border:1px solid #c9dfd7;border-radius:12px;box-shadow:0 8px 20px rgba(28,65,55,.09);backdrop-filter:blur(12px)}
+    .page-switcher a{display:grid;place-items:center;min-width:0;min-height:36px;padding:5px 3px;color:var(--primary);text-align:center;text-decoration:none;border-radius:8px;font-size:.7rem;font-weight:900;letter-spacing:-.02em}
+    .page-switcher a.active{color:#fff;background:var(--primary)}
+    .hero{padding:13px 16px;margin-bottom:9px;color:#fff;background:linear-gradient(135deg,#07352d,#19735e);border-radius:15px;box-shadow:var(--shadow)}
+    .hero h1{margin:0;font-size:1.45rem;letter-spacing:-.04em}.hero small{display:block;margin-top:3px;color:rgba(255,255,255,.78);font-weight:750}
+    .panel{padding:13px;margin-bottom:9px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 7px 20px rgba(28,65,55,.05)}
+    .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.panel-heading h2{margin:0;font-size:1.05rem;letter-spacing:-.025em}
+    .login-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:7px}.login-grid input{min-width:0;min-height:40px;padding:7px 9px;border:1px solid #cbd9d3;border-radius:9px;outline:none}.login-grid input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(23,108,91,.12)}
+    .button{min-height:40px;padding:7px 11px;border-radius:9px;border:1px solid #9cc5b8;font-weight:900}.button.primary{color:#fff;background:var(--primary);border-color:var(--primary)}.button.primary:hover{background:var(--primary-hover)}.button.secondary{color:var(--primary);background:#fff}.button.danger{color:var(--danger);background:#fff;border-color:#e6aaa4}.button:disabled{opacity:.55;cursor:wait}
+    .admin-status{display:none;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--soft);border-radius:10px;font-size:.78rem;font-weight:850}.admin-status.show{display:flex}
+    .message{display:none;padding:9px 10px;margin-bottom:9px;border-radius:10px;font-size:.78rem;font-weight:800}.message.show{display:block}.message.error{color:var(--danger);background:var(--danger-soft);border:1px solid #f2c6c2}.message.success{color:var(--primary);background:var(--primary-soft);border:1px solid #bfe2d5}.message.warning{color:var(--warning);background:var(--warning-soft);border:1px solid #ead09e}
+    .event-list{display:grid;gap:8px}.empty{padding:24px 12px;color:var(--muted);text-align:center;border:1px dashed #cbd9d3;border-radius:12px;font-size:.82rem}
+    .event-card{overflow:hidden;border:1px solid #d5e5df;border-radius:12px;background:#fff}.event-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:10px;background:linear-gradient(135deg,#edf8f4,#fbfefd)}.event-title{min-width:0}.event-title h3{margin:0;font-size:1rem;overflow-wrap:anywhere}.event-round{flex:0 0 auto;padding:4px 7px;color:var(--primary);background:#fff;border:1px solid #b9d9ce;border-radius:999px;font-size:.7rem;font-weight:950}
+    .event-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:8px 10px}.meta{padding:6px;background:#f6faf8;border-radius:8px;text-align:center}.meta span{display:block;color:var(--muted);font-size:.59rem;font-weight:800}.meta strong{display:block;margin-top:2px;font-size:.72rem;overflow-wrap:anywhere}
+    .event-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:0 10px 8px}.event-actions a,.event-actions button{display:grid;place-items:center;min-height:35px;padding:5px;color:var(--primary);background:#fff;border:1px solid #a9cfc2;border-radius:8px;text-decoration:none;font-size:.7rem;font-weight:900}.event-actions .snapshot-toggle{grid-column:1 / 3}.event-actions .manual-snapshot{color:#745506;border-color:#dac87b}
+    .snapshot-area{display:none;padding:8px 10px 10px;background:#fbfdfc;border-top:1px solid #e2ebe7}.snapshot-area.show{display:block}.snapshot-list{display:grid;gap:5px}.snapshot-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;padding:7px 8px;background:#fff;border:1px solid #e0eae6;border-radius:8px}.snapshot-copy{min-width:0}.snapshot-copy strong{display:block;font-size:.75rem;overflow-wrap:anywhere}.snapshot-copy span{display:block;margin-top:2px;color:var(--muted);font-size:.62rem}.restore-button{min-height:32px;padding:4px 8px;color:var(--danger);background:#fff;border:1px solid #e3aaa5;border-radius:7px;font-size:.68rem;font-weight:900}
+    @media(max-width:650px){.app-shell{width:min(100% - 10px,980px);padding:7px 0 20px}.page-switcher a{font-size:.64rem}.hero{padding:10px 12px}.hero h1{font-size:1.3rem}.hero small{font-size:.67rem}.panel{padding:9px 8px}.login-grid{grid-template-columns:1fr}.event-meta{grid-template-columns:repeat(3,minmax(0,1fr));padding:6px}.meta{padding:5px 2px}.meta strong{font-size:.64rem}.event-actions{padding:0 6px 6px;gap:4px}.event-actions a,.event-actions button{font-size:.64rem;padding:4px 2px}.snapshot-area{padding:6px}.snapshot-row{padding:6px}}
+  </style>
+</head>
+<body>
+<main class="app-shell">
+  <nav class="page-switcher" aria-label="페이지 이동">
+    <a href="./index.html">1. 추첨·대진</a>
+    <a href="./scores.html">2. 스코어</a>
+    <a href="./results.html">3. 결과</a>
+    <a href="./admin.html" class="active" aria-current="page">관리자</a>
+  </nav>
+  <header class="hero"><h1>대회 관리자</h1><small>대회 열기 · 자동 백업 · 이전 버전 복원</small></header>
+  <section class="panel">
+    <div class="panel-heading"><h2>관리자 로그인</h2></div>
+    <div id="messageBox" class="message" role="alert" aria-live="assertive"></div>
+    <div id="loginPanel" class="login-grid">
+      <input id="adminEmail" type="email" autocomplete="username" placeholder="관리자 이메일" />
+      <input id="adminPassword" type="password" autocomplete="current-password" placeholder="관리자 비밀번호" />
+      <button id="loginButton" class="button primary" type="button">로그인</button>
+    </div>
+    <div id="adminStatus" class="admin-status"><span id="adminStatusText"></span><button id="logoutButton" class="button secondary" type="button">로그아웃</button></div>
+  </section>
+  <section class="panel">
+    <div class="panel-heading"><h2>내 대회 목록</h2><button id="refreshButton" class="button secondary" type="button">새로고침</button></div>
+    <div id="eventList" class="event-list"><div class="empty">관리자 로그인 후 대회 목록을 확인할 수 있습니다.</div></div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  "use strict";
+  const SUPABASE_URL = "https://mktdpjkcumyamweynqmp.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_lwcj15eyh93kU0Jq2kT8Ng_MaDE7BUN";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const loginPanel = document.getElementById("loginPanel");
+  const adminEmail = document.getElementById("adminEmail");
+  const adminPassword = document.getElementById("adminPassword");
+  const loginButton = document.getElementById("loginButton");
+  const logoutButton = document.getElementById("logoutButton");
+  const adminStatus = document.getElementById("adminStatus");
+  const adminStatusText = document.getElementById("adminStatusText");
+  const refreshButton = document.getElementById("refreshButton");
+  const eventList = document.getElementById("eventList");
+  const messageBox = document.getElementById("messageBox");
+  let currentUser = null;
+
+  function showMessage(text, type="warning") { messageBox.textContent=text; messageBox.className=`message show ${type}`; }
+  function clearMessage() { messageBox.textContent=""; messageBox.className="message"; }
+  function empty(text) { const div=document.createElement("div"); div.className="empty"; div.textContent=text; return div; }
+  function formatDate(value) {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "-";
+    return new Intl.DateTimeFormat("ko-KR", {year:"2-digit",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).format(date);
+  }
+  function eventUrl(page, item) {
+    const url = new URL(page, window.location.href);
+    url.searchParams.set("event", item.event_id);
+    if (item.share_code) url.searchParams.set("code", item.share_code);
+    return url.toString();
+  }
+  function setLoginUi(user) {
+    currentUser = user || null;
+    loginPanel.style.display = currentUser ? "none" : "grid";
+    adminStatus.classList.toggle("show", Boolean(currentUser));
+    adminStatusText.textContent = currentUser ? `로그인: ${currentUser.email || "관리자"}` : "";
+    if (!currentUser) {
+      eventList.replaceChildren(empty("관리자 로그인 후 대회 목록을 확인할 수 있습니다."));
+    }
+  }
+
+  async function login() {
+    const email=adminEmail.value.trim(), password=adminPassword.value;
+    if (!email || !password) return showMessage("이메일과 비밀번호를 입력해 주세요.","warning");
+    loginButton.disabled=true; loginButton.textContent="로그인 중";
+    const {data,error}=await db.auth.signInWithPassword({email,password});
+    loginButton.disabled=false; loginButton.textContent="로그인";
+    if (error) return showMessage(`로그인 실패: ${error.message}`,"error");
+    adminPassword.value=""; setLoginUi(data.user); clearMessage(); await loadEvents();
+  }
+
+  async function loadEvents() {
+    if (!currentUser) return;
+    refreshButton.disabled=true; eventList.replaceChildren(empty("대회 목록을 불러오고 있습니다."));
+    const {data,error}=await db.rpc("list_my_tennis_events");
+    refreshButton.disabled=false;
+    if (error) {
+      eventList.replaceChildren(empty("대회 목록을 불러오지 못했습니다."));
+      return showMessage(`목록 조회 실패: ${error.message}. 최신 Supabase 설정 SQL을 실행했는지 확인해 주세요.`,"error");
+    }
+    const items=Array.isArray(data)?data:[];
+    eventList.replaceChildren();
+    if (!items.length) return eventList.appendChild(empty("생성한 대회가 없습니다."));
+    items.forEach(item=>eventList.appendChild(createEventCard(item)));
+  }
+
+  function createEventCard(item) {
+    const card=document.createElement("article"); card.className="event-card"; card.dataset.eventId=item.event_id;
+    const head=document.createElement("div"); head.className="event-head";
+    const title=document.createElement("div"); title.className="event-title"; const h3=document.createElement("h3"); h3.textContent=item.event_title||"테니스 경기"; title.appendChild(h3);
+    const round=document.createElement("span"); round.className="event-round"; round.textContent=`${item.draw_round||1}회차`; head.append(title,round);
+    const meta=document.createElement("div"); meta.className="event-meta";
+    [["생성",formatDate(item.created_at)],["최근 수정",formatDate(item.updated_at)],["백업",`${item.snapshot_count||0}개`]].forEach(([label,value])=>{const box=document.createElement("div");box.className="meta";const s=document.createElement("span");s.textContent=label;const b=document.createElement("strong");b.textContent=value;box.append(s,b);meta.appendChild(box)});
+    const actions=document.createElement("div"); actions.className="event-actions";
+    [["1페이지","./index.html"],["2페이지","./scores.html"],["3페이지","./results.html"]].forEach(([label,page])=>{const a=document.createElement("a");a.textContent=label;a.href=eventUrl(page,item);actions.appendChild(a)});
+    const toggle=document.createElement("button");toggle.type="button";toggle.className="snapshot-toggle";toggle.textContent="이전 버전 보기";
+    const manual=document.createElement("button");manual.type="button";manual.className="manual-snapshot";manual.textContent="현재 상태 백업";
+    actions.append(toggle,manual);
+    const area=document.createElement("div");area.className="snapshot-area";area.appendChild(empty("이전 버전을 불러오지 않았습니다."));
+    toggle.addEventListener("click",async()=>{const open=area.classList.toggle("show");toggle.textContent=open?"이전 버전 닫기":"이전 버전 보기";if(open)await loadSnapshots(item,area)});
+    manual.addEventListener("click",async()=>{manual.disabled=true;const {error}=await db.rpc("create_tennis_event_snapshot",{p_event_id:String(item.event_id),p_reason:"관리자 수동 백업"});manual.disabled=false;if(error)return showMessage(`백업 실패: ${error.message}`,"error");showMessage(`${item.event_title} 현재 상태를 백업했습니다.`,"success");await loadEvents()});
+    card.append(head,meta,actions,area); return card;
+  }
+
+  async function loadSnapshots(item, area) {
+    area.replaceChildren(empty("이전 버전을 불러오고 있습니다."));
+    const {data,error}=await db.rpc("list_tennis_event_snapshots",{p_event_id:String(item.event_id)});
+    if(error){area.replaceChildren(empty(`조회 실패: ${error.message}`));return}
+    const rows=Array.isArray(data)?data:[]; area.replaceChildren();
+    if(!rows.length)return area.appendChild(empty("저장된 이전 버전이 없습니다."));
+    const list=document.createElement("div");list.className="snapshot-list";
+    rows.forEach(row=>{
+      const line=document.createElement("div");line.className="snapshot-row";const copy=document.createElement("div");copy.className="snapshot-copy";const strong=document.createElement("strong");strong.textContent=row.snapshot_reason||"자동 백업";const span=document.createElement("span");span.textContent=`${row.source_round||1}회차 · ${formatDate(row.created_at)}`;copy.append(strong,span);
+      const restore=document.createElement("button");restore.type="button";restore.className="restore-button";restore.textContent="복원";
+      restore.addEventListener("click",async()=>{
+        if(!window.confirm(`「${item.event_title}」을 ${formatDate(row.created_at)} 상태로 복원할까요?\n현재 상태도 복원 직전에 자동 백업됩니다.`))return;
+        restore.disabled=true;restore.textContent="복원 중";
+        const {error}=await db.rpc("restore_tennis_event_snapshot",{p_snapshot_id:Number(row.snapshot_id)});
+        restore.disabled=false;restore.textContent="복원";
+        if(error)return showMessage(`복원 실패: ${error.message}`,"error");
+        showMessage(`${item.event_title}을 선택한 이전 버전으로 복원했습니다.`,"success");await loadEvents();
+      });
+      line.append(copy,restore);list.appendChild(line);
+    });
+    area.appendChild(list);
+  }
+
+  loginButton.addEventListener("click",login);
+  adminPassword.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();login()}});
+  logoutButton.addEventListener("click",async()=>{await db.auth.signOut();setLoginUi(null);showMessage("로그아웃했습니다.","success")});
+  refreshButton.addEventListener("click",loadEvents);
+  db.auth.onAuthStateChange((_event,session)=>{setLoginUi(session?.user||null)});
+  db.auth.getSession().then(async({data,error})=>{if(error){showMessage(`세션 확인 실패: ${error.message}`,"error");return}setLoginUi(data.session?.user||null);if(data.session?.user)await loadEvents()});
+})();
+</script>
+</body>
+</html>
