@@ -500,6 +500,29 @@
       .page-switcher a { font-size: .64rem; letter-spacing: -.03em; }
     }
 
+    .backup-status {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 9px;
+      margin: -2px 0 9px;
+      color: #31564d;
+      background: #eef8f4;
+      border: 1px solid #cfe6dd;
+      border-radius: 9px;
+      font-size: .68rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+    .backup-status.show { display: flex; }
+    .backup-status strong { color: var(--primary); font-size: .72rem; }
+    .backup-status span { min-width: 0; overflow-wrap: anywhere; }
+    @media (max-width: 650px) {
+      .backup-status { padding: 5px 7px; margin-bottom: 6px; font-size: .6rem; }
+      .backup-status strong { font-size: .64rem; white-space: nowrap; }
+    }
+
 </style>
 </head>
 <body>
@@ -521,6 +544,7 @@
 </div>
 </div>
 <div aria-live="assertive" class="message" id="messageBox" role="alert"></div><div class="score-summary" id="scoreSummary"></div>
+<div aria-live="polite" class="backup-status" id="backupStatus"></div>
 <div class="schedule-list" id="scheduleList">
 <div class="empty-state">대진표를 불러오고 있습니다.</div>
 </div>
@@ -566,6 +590,7 @@
       const eventMeta = document.getElementById("eventMeta");
       const messageBox = document.getElementById("messageBox");
       const scoreSummary = document.getElementById("scoreSummary");
+      const backupStatus = document.getElementById("backupStatus");
       const scheduleList = document.getElementById("scheduleList");
       const mainPageLink = document.getElementById("mainPageLink");
       const scorePageLink = document.getElementById("scorePageLink");
@@ -747,6 +772,52 @@
         return true;
       }
 
+      async function loadBackupStatus() {
+        if (!eventData || !backupStatus) return;
+
+        const { data, error } = await db.rpc("get_tennis_auto_backup_status", {
+          p_event_id: String(eventData.id)
+        });
+
+        if (error) {
+          backupStatus.classList.remove("show");
+          backupStatus.replaceChildren();
+          console.warn("자동 백업 상태 조회 실패:", error);
+          return;
+        }
+
+        const status = Array.isArray(data) ? data[0] : data;
+        if (!status) {
+          backupStatus.classList.remove("show");
+          return;
+        }
+
+        const autoCount = Number(status.auto_snapshot_count || 0);
+        const manualCount = Number(status.manual_snapshot_count || 0);
+        const changes = Number(status.changes_since_backup || 0);
+        const nextCount = Number(status.next_score_backup_in || 0);
+        const elapsed = Boolean(status.ten_minutes_elapsed);
+        const lastAt = status.last_snapshot_at ? formatDate(status.last_snapshot_at) : "없음";
+        const lastType = status.last_snapshot_type === "manual" ? "수동" : "자동";
+
+        let nextText;
+        if (!status.last_snapshot_at) {
+          nextText = `첫 자동 백업까지 ${Math.max(1, nextCount)}경기`;
+        } else if (elapsed && changes > 0) {
+          nextText = "다음 스코어 확정 시 자동 백업";
+        } else if (nextCount <= 0) {
+          nextText = "자동 백업 준비 완료";
+        } else {
+          nextText = `다음 자동 백업까지 ${nextCount}경기`;
+        }
+
+        backupStatus.replaceChildren();
+        const left = createElement("span", "", `최근 ${lastType} 백업 ${lastAt} · 이후 ${changes}경기`);
+        const right = createElement("strong", "", `${nextText} · 자동 ${autoCount}/10 · 수동 ${manualCount}`);
+        backupStatus.append(left, right);
+        backupStatus.classList.add("show");
+      }
+
       async function loadScores() {
         if (!eventData) return;
         const { data, error } = await db
@@ -770,6 +841,7 @@
           (data || []).map((row) => [scoreKey(row.schedule_key, row.game_number), row])
         );
         renderSchedules();
+        await loadBackupStatus();
       }
 
       function createPlayer(player) {
