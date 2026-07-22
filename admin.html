@@ -692,10 +692,16 @@
       if(typed!=="삭제")return;
       deleteButton.disabled=true;
       deleteButton.textContent="삭제 중";
-      const {error}=await db.rpc("delete_tennis_event",{p_event_id:String(item.event_id)});
+      const {data,error}=await db.rpc("delete_tennis_event",{p_event_id:String(item.event_id)});
       deleteButton.disabled=false;
       if(error)return showMessage(`대회 삭제 실패: ${error.message}`,"error");
-      showMessage(`${item.event_title}과 관련 데이터를 모두 삭제했습니다.`,"success");
+      const deletedScores=Number(data?.deleted_scores??0);
+      const deletedSnapshots=Number(data?.deleted_snapshots??0);
+      showMessage(
+        `${item.event_title}과 관련 데이터를 모두 삭제했습니다. `+
+        `(스코어 ${deletedScores}건, 백업 ${deletedSnapshots}건 삭제)`,
+        "success"
+      );
       await loadEvents();
     });
 
