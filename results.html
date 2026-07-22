@@ -514,7 +514,8 @@
     .rank-player-name { display:block; margin-top:2px; overflow-wrap:anywhere; font-size:.68rem; font-weight:900; }
     .score-pill { min-width:44px; min-height:27px; padding:3px 5px; border-radius:6px; font-size:.76rem; }
     .score-pill .exclude-label { font-size:.5rem; }
-    .capture-clone { position:absolute !important; left:0 !important; top:0 !important; z-index:-1 !important; height:auto !important; max-height:none !important; overflow:visible !important; margin:0 !important; padding-bottom:12px !important; box-shadow:none !important; pointer-events:none !important; }
+    .capture-clone { position:fixed !important; left:0 !important; top:0 !important; z-index:9998 !important; opacity:.001 !important; visibility:visible !important; height:auto !important; max-height:none !important; overflow:visible !important; margin:0 !important; padding-bottom:12px !important; background:#fff !important; box-shadow:none !important; pointer-events:none !important; }
+    .capture-clone.capture-render-copy { opacity:1 !important; }
     .capture-clone .table-scroll { width:100% !important; height:auto !important; max-height:none !important; overflow:visible !important; }
     .capture-clone .standing-table { width:100% !important; }
     .capture-clone .standing-header { position:static !important; }
@@ -1164,7 +1165,6 @@
       }
 
       async function downloadStandingImage(button) {
-        const preservedScores = new Map(scoreRows);
         const card = button.closest(".standing-card");
         if (!card || typeof window.html2canvas !== "function") {
           showMessage("이미지 저장 기능을 불러오지 못했습니다.", "error");
@@ -1175,19 +1175,58 @@
         const originalText = button.textContent;
         button.textContent = "생성 중";
         let clone = null;
+
         try {
           const sourceTable = card.querySelector(".standing-table");
           const initialWidth = Math.max(760, Math.ceil(sourceTable?.scrollWidth || 0) + 8);
+          const captureId = `standing-capture-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+          /*
+           * html2canvas가 중첩 span의 동적 텍스트를 누락하는 경우를 방지하기 위해
+           * 화면에 표시 중인 각 스코어를 먼저 문자열로 수집한 뒤, 캡처용 복제본에는
+           * 단순 텍스트 노드로 다시 기록한다.
+           */
+          const scoreSnapshot = Array.from(card.querySelectorAll(".score-pill"), (pill) => ({
+            score: pill.querySelector(".score-value")?.textContent?.trim() ||
+              (pill.classList.contains("pending") ? "-" : pill.childNodes[0]?.textContent?.trim() || "-"),
+            excluded: pill.classList.contains("excluded"),
+            excludeLabel: pill.querySelector(".exclude-label")?.textContent?.trim() || "",
+            color: getComputedStyle(pill).color,
+            backgroundColor: getComputedStyle(pill).backgroundColor,
+            border: getComputedStyle(pill).border
+          }));
+
           clone = card.cloneNode(true);
-          const sourceScoreValues = Array.from(card.querySelectorAll(".score-value"), (node) => node.textContent);
-          clone.querySelectorAll(".score-value").forEach((node, index) => {
-            node.textContent = sourceScoreValues[index] || node.textContent || "-";
-            node.style.display = "inline";
-            node.style.visibility = "visible";
-            node.style.opacity = "1";
-          });
+          clone.dataset.captureRoot = captureId;
           clone.classList.add("capture-clone");
           clone.style.width = `${initialWidth}px`;
+
+          const writeScoresIntoClone = (root) => {
+            root.querySelectorAll(".score-pill").forEach((pill, index) => {
+              const saved = scoreSnapshot[index];
+              if (!saved) return;
+
+              pill.replaceChildren(document.createTextNode(saved.score || "-"));
+              pill.dataset.captureScore = saved.score || "-";
+              pill.style.display = "inline-flex";
+              pill.style.alignItems = "center";
+              pill.style.justifyContent = "center";
+              pill.style.visibility = "visible";
+              pill.style.opacity = "1";
+              pill.style.color = saved.color;
+              pill.style.backgroundColor = saved.backgroundColor;
+              pill.style.border = saved.border;
+
+              if (saved.excluded && saved.excludeLabel) {
+                const label = document.createElement("small");
+                label.className = "exclude-label";
+                label.textContent = saved.excludeLabel;
+                pill.appendChild(label);
+              }
+            });
+          };
+
+          writeScoresIntoClone(clone);
 
           const captureTitle = createElement(
             "div",
@@ -1216,7 +1255,7 @@
             clone.scrollHeight,
             clone.offsetHeight,
             clone.getBoundingClientRect().height
-          )) + 16;
+          )) + 20;
 
           const canvas = await window.html2canvas(clone, {
             scale: 2,
@@ -1228,11 +1267,44 @@
             windowWidth: Math.max(document.documentElement.clientWidth, measuredWidth),
             windowHeight: Math.max(document.documentElement.clientHeight, measuredHeight),
             scrollX: 0,
-            scrollY: 0
+            scrollY: 0,
+            onclone: (clonedDocument) => {
+              const captureRoot = clonedDocument.querySelector(`[data-capture-root="${captureId}"]`);
+              if (!captureRoot) return;
+
+              captureRoot.classList.add("capture-render-copy");
+              captureRoot.style.opacity = "1";
+              captureRoot.style.visibility = "visible";
+              captureRoot.style.zIndex = "1";
+
+              /* html2canvas가 자체적으로 만든 문서 복제본에도 스코어를 한 번 더 주입한다. */
+              captureRoot.querySelectorAll(".score-pill").forEach((pill, index) => {
+                const saved = scoreSnapshot[index];
+                if (!saved) return;
+
+                pill.replaceChildren(clonedDocument.createTextNode(saved.score || "-"));
+                pill.style.display = "inline-flex";
+                pill.style.alignItems = "center";
+                pill.style.justifyContent = "center";
+                pill.style.visibility = "visible";
+                pill.style.opacity = "1";
+                pill.style.color = saved.color;
+                pill.style.backgroundColor = saved.backgroundColor;
+                pill.style.border = saved.border;
+
+                if (saved.excluded && saved.excludeLabel) {
+                  const label = clonedDocument.createElement("small");
+                  label.className = "exclude-label";
+                  label.textContent = saved.excludeLabel;
+                  pill.appendChild(label);
+                }
+              });
+            }
           });
 
           const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
           if (!blob) throw new Error("이미지 변환 실패");
+
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
@@ -1247,8 +1319,6 @@
           showMessage(`이미지 저장 실패: ${error.message}`, "error");
         } finally {
           if (clone) clone.remove();
-          scoreRows = preservedScores;
-          renderStandings();
           button.disabled = false;
           button.textContent = originalText;
         }
