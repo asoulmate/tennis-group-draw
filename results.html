@@ -580,9 +580,30 @@
       .standing-table .name-cell { min-width: 98px; }
     }
 
+
+    .access-gate {
+      position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center;
+      padding: 18px; background: rgba(11, 31, 26, .82); backdrop-filter: blur(5px);
+    }
+    .access-gate[hidden] { display: none !important; }
+    .access-card { width: min(390px, 100%); padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 24px 70px rgba(0,0,0,.28); }
+    .access-card h2 { margin: 0 0 12px; font-size: 1.25rem; }
+    .access-card .field { display:grid; gap:6px; margin-bottom:10px; }
+    .access-card input { width:100%; min-height:44px; padding:9px 11px; border:1px solid #cbd9d3; border-radius:9px; font:inherit; }
+    .access-error { min-height:20px; margin-top:8px; color:var(--danger); font-size:.82rem; font-weight:800; }
+    .capture-clone .score-value { display:inline !important; visibility:visible !important; opacity:1 !important; }
+
 </style>
 </head>
 <body>
+<div class="access-gate" id="accessGate">
+  <div class="access-card">
+    <h2>참가자 비밀번호 입력</h2>
+    <label class="field" for="participantGatePassword"><span>대회 참가자 비밀번호</span><input id="participantGatePassword" type="password" inputmode="numeric" maxlength="20" autocomplete="one-time-code" placeholder="비밀번호 입력"/></label>
+    <button class="button button-primary" id="participantGateButton" type="button">대회 입장</button>
+    <div class="access-error" id="participantGateError"></div>
+  </div>
+</div>
 <main class="app-shell">
 <nav aria-label="페이지 이동" class="page-switcher">
 <a href="./index.html" id="mainPageLink">1. 추첨·대진 생성</a>
@@ -658,6 +679,10 @@
       const resultsPageLink = document.getElementById("resultsPageLink");
       const rankingModeInputs = Array.from(document.querySelectorAll('input[name="rankingMode"]'));
       const rankingModeHelp = document.getElementById("rankingModeHelp");
+      const accessGate = document.getElementById("accessGate");
+      const participantGatePassword = document.getElementById("participantGatePassword");
+      const participantGateButton = document.getElementById("participantGateButton");
+      const participantGateError = document.getElementById("participantGateError");
 
       const params = new URLSearchParams(window.location.search);
       const eventId = params.get("event") || "";
@@ -667,6 +692,8 @@
       let scoreRows = new Map();
       let scoreChannel = null;
       let eventChannel = null;
+      let accessToken = "";
+      const accessTokenStorageKey = `tennis-access-token:${eventId}`;
       const rankingModeStorageKey = `tennis-ranking-mode:${eventId || "default"}`;
       let rankingMode = "all4";
 
@@ -674,6 +701,51 @@
         rankingMode = localStorage.getItem(rankingModeStorageKey) === "best3" ? "best3" : "all4";
       } catch (error) {
         rankingMode = "all4";
+      }
+
+
+      function readStoredAccessToken() {
+        try { return localStorage.getItem(accessTokenStorageKey) || ""; }
+        catch (_) { return ""; }
+      }
+      function storeAccessToken(token) {
+        accessToken = token || "";
+        try {
+          if (accessToken) localStorage.setItem(accessTokenStorageKey, accessToken);
+          else localStorage.removeItem(accessTokenStorageKey);
+        } catch (_) {}
+      }
+      async function validateStoredAccess() {
+        const token = readStoredAccessToken();
+        if (!token || !eventId) return false;
+        const { data, error } = await db.rpc("validate_tennis_access_session", {
+          p_event_id: String(eventId), p_token: token
+        });
+        if (error || !data?.valid) { storeAccessToken(""); return false; }
+        storeAccessToken(token);
+        accessGate.hidden = true;
+        return true;
+      }
+      async function enterWithParticipantPassword() {
+        const password = participantGatePassword.value.trim();
+        if (!password) { participantGateError.textContent = "참가자 비밀번호를 입력해 주세요."; return false; }
+        participantGateButton.disabled = true;
+        participantGateButton.textContent = "확인 중...";
+        const { data, error } = await db.rpc("create_tennis_access_session", {
+          p_event_id: String(eventId),
+          p_share_code: String(shareCode),
+          p_participant_password: password
+        });
+        participantGateButton.disabled = false;
+        participantGateButton.textContent = "대회 입장";
+        if (error) { participantGateError.textContent = error.message || "비밀번호가 올바르지 않습니다."; return false; }
+        storeAccessToken(data?.token || "");
+        participantGatePassword.value = "";
+        participantGateError.textContent = "";
+        accessGate.hidden = true;
+        await loadScores();
+        subscribeRealtime();
+        return true;
       }
 
       function normalizeText(value) {
@@ -1092,6 +1164,7 @@
       }
 
       async function downloadStandingImage(button) {
+        const preservedScores = new Map(scoreRows);
         const card = button.closest(".standing-card");
         if (!card || typeof window.html2canvas !== "function") {
           showMessage("이미지 저장 기능을 불러오지 못했습니다.", "error");
@@ -1106,6 +1179,13 @@
           const sourceTable = card.querySelector(".standing-table");
           const initialWidth = Math.max(760, Math.ceil(sourceTable?.scrollWidth || 0) + 8);
           clone = card.cloneNode(true);
+          const sourceScoreValues = Array.from(card.querySelectorAll(".score-value"), (node) => node.textContent);
+          clone.querySelectorAll(".score-value").forEach((node, index) => {
+            node.textContent = sourceScoreValues[index] || node.textContent || "-";
+            node.style.display = "inline";
+            node.style.visibility = "visible";
+            node.style.opacity = "1";
+          });
           clone.classList.add("capture-clone");
           clone.style.width = `${initialWidth}px`;
 
@@ -1167,6 +1247,8 @@
           showMessage(`이미지 저장 실패: ${error.message}`, "error");
         } finally {
           if (clone) clone.remove();
+          scoreRows = preservedScores;
+          renderStandings();
           button.disabled = false;
           button.textContent = originalText;
         }
@@ -1174,7 +1256,7 @@
 
       standingList.addEventListener("click", (event) => {
         const button = event.target.closest(".capture-button");
-        if (button) downloadStandingImage(button);
+        if (button) { event.preventDefault(); event.stopPropagation(); downloadStandingImage(button); }
       });
 
       function changeRankingMode(nextMode) {
@@ -1184,7 +1266,10 @@
         } catch (error) {
           console.warn("집계 방식 저장 실패:", error);
         }
-        updateRankingModeUi();
+        participantGateButton.addEventListener("click", enterWithParticipantPassword);
+      participantGatePassword.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); enterWithParticipantPassword(); } });
+
+      updateRankingModeUi();
         renderStandings();
       }
 
@@ -1296,6 +1381,19 @@
       (async () => {
         const loaded = await loadEvent();
         if (!loaded) return;
+        const { data: sessionData } = await db.auth.getSession();
+        const currentUser = sessionData?.session?.user || null;
+        const ownerBypass = Boolean(currentUser && String(eventData.owner_id || "") === String(currentUser.id));
+        if (ownerBypass) {
+          accessGate.hidden = true;
+        } else {
+          const accessValid = await validateStoredAccess();
+          if (!accessValid) {
+            accessGate.hidden = false;
+            participantGatePassword.focus();
+            return;
+          }
+        }
         await loadScores();
         subscribeRealtime();
       })();

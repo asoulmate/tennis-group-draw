@@ -523,9 +523,39 @@
       .backup-status strong { font-size: .64rem; white-space: nowrap; }
     }
 
+
+    .access-gate {
+      position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center;
+      padding: 18px; background: rgba(11, 31, 26, .82); backdrop-filter: blur(5px);
+    }
+    .access-gate[hidden] { display: none !important; }
+    .access-card { width: min(390px, 100%); padding: 20px; background: #fff; border-radius: 18px; box-shadow: 0 24px 70px rgba(0,0,0,.28); }
+    .access-card h2 { margin: 0 0 12px; font-size: 1.25rem; }
+    .access-card .field { margin-bottom: 10px; }
+    .access-error { min-height: 20px; margin-top: 8px; color: var(--danger); font-size: .82rem; font-weight: 800; }
+    .subadmin-panel { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 7px; align-items: end; padding: 9px; margin-bottom: 9px; background: #fff8e8; border: 1px solid #ead49a; border-radius: 10px; }
+    .subadmin-panel.is-active { background: #eaf8f1; border-color: #9fd1bd; }
+    .subadmin-panel .field-label { font-size: .68rem; }
+    .subadmin-panel input { min-height: 38px; }
+    .subadmin-status { grid-column: 1 / -1; color: #6f571c; font-size: .68rem; font-weight: 850; }
+    @media (max-width: 650px) {
+      .access-card { padding: 16px; }
+      .subadmin-panel { grid-template-columns: 1fr auto; padding: 7px; gap: 5px; }
+      .subadmin-panel input { min-height: 34px; }
+      .subadmin-panel .button { min-height: 34px; padding: 5px 8px; font-size: .68rem; }
+    }
+
 </style>
 </head>
 <body>
+<div class="access-gate" id="accessGate">
+  <div class="access-card">
+    <h2>참가자 비밀번호 입력</h2>
+    <label class="field" for="participantGatePassword"><span class="field-label">대회 참가자 비밀번호</span><input id="participantGatePassword" type="password" inputmode="numeric" maxlength="20" autocomplete="one-time-code" placeholder="비밀번호 입력"/></label>
+    <button class="button button-primary" id="participantGateButton" type="button">대회 입장</button>
+    <div class="access-error" id="participantGateError"></div>
+  </div>
+</div>
 <main class="app-shell">
 <nav aria-label="페이지 이동" class="page-switcher">
 <a href="./index.html" id="mainPageLink">1. 추첨·대진 생성</a>
@@ -558,6 +588,13 @@
 </div>
 
 <div class="event-meta" id="eventMeta"></div>
+</section><section aria-labelledby="subadminTitle" class="panel">
+<div class="panel-heading"><div><h2 id="subadminTitle">서브관리자 권한</h2></div></div>
+<div class="subadmin-panel" id="subadminPanel">
+<label class="field" for="subadminPasswordInput"><span class="field-label">서브관리자 비밀번호</span><input id="subadminPasswordInput" type="password" inputmode="numeric" maxlength="20" autocomplete="off" placeholder="비밀번호 입력"/></label>
+<button class="button button-secondary" id="subadminActivateButton" type="button">권한 활성화</button>
+<div class="subadmin-status" id="subadminStatus">참가자 입장 후, 서브관리자 비밀번호를 추가 입력하면 확정 스코어 수정·초기화가 가능합니다.</div>
+</div>
 </section><section aria-labelledby="adminTitle" class="panel">
 <div class="panel-heading">
 <div>
@@ -602,6 +639,14 @@
       const adminStatus = document.getElementById("adminStatus");
       const adminStatusText = document.getElementById("adminStatusText");
       const adminLogoutButton = document.getElementById("adminLogoutButton");
+      const accessGate = document.getElementById("accessGate");
+      const participantGatePassword = document.getElementById("participantGatePassword");
+      const participantGateButton = document.getElementById("participantGateButton");
+      const participantGateError = document.getElementById("participantGateError");
+      const subadminPanel = document.getElementById("subadminPanel");
+      const subadminPasswordInput = document.getElementById("subadminPasswordInput");
+      const subadminActivateButton = document.getElementById("subadminActivateButton");
+      const subadminStatus = document.getElementById("subadminStatus");
 
       const params = new URLSearchParams(window.location.search);
       const eventId = params.get("event") || "";
@@ -613,6 +658,9 @@
       let scoreRows = new Map();
       let scoreChannel = null;
       let eventChannel = null;
+      let accessToken = "";
+      let accessRole = "";
+      const accessTokenStorageKey = `tennis-access-token:${eventId}`;
 
       function buildSiblingPageUrl(fileName) {
         const url = new URL(window.location.href);
@@ -663,6 +711,103 @@
         } catch (_) {
           return "";
         }
+      }
+
+
+      function readStoredAccessToken() {
+        try { return localStorage.getItem(accessTokenStorageKey) || ""; }
+        catch (_) { return ""; }
+      }
+
+      function storeAccessToken(token) {
+        accessToken = token || "";
+        try {
+          if (accessToken) localStorage.setItem(accessTokenStorageKey, accessToken);
+          else localStorage.removeItem(accessTokenStorageKey);
+        } catch (_) {}
+      }
+
+      function updateSubadminUi() {
+        const active = accessRole === "subadmin";
+        subadminPanel.classList.toggle("is-active", active);
+        subadminActivateButton.disabled = active;
+        subadminPasswordInput.disabled = active;
+        subadminStatus.textContent = active
+          ? "서브관리자 권한 활성화됨 · 이 대회의 확정 스코어만 수정·초기화할 수 있습니다."
+          : "참가자 입장 후, 서브관리자 비밀번호를 추가 입력하면 확정 스코어 수정·초기화가 가능합니다.";
+        if (eventData) renderSchedules();
+      }
+
+      async function validateStoredAccess() {
+        const token = readStoredAccessToken();
+        if (!token || !eventId) return false;
+        const { data, error } = await db.rpc("validate_tennis_access_session", {
+          p_event_id: String(eventId),
+          p_token: token
+        });
+        if (error || !data?.valid) {
+          storeAccessToken("");
+          accessRole = "";
+          return false;
+        }
+        storeAccessToken(token);
+        accessRole = data.role || "participant";
+        accessGate.hidden = true;
+        updateSubadminUi();
+        return true;
+      }
+
+      async function enterWithParticipantPassword() {
+        const password = participantGatePassword.value.trim();
+        if (!password) {
+          participantGateError.textContent = "참가자 비밀번호를 입력해 주세요.";
+          return false;
+        }
+        participantGateButton.disabled = true;
+        participantGateButton.textContent = "확인 중...";
+        const { data, error } = await db.rpc("create_tennis_access_session", {
+          p_event_id: String(eventId),
+          p_share_code: String(shareCode),
+          p_participant_password: password
+        });
+        participantGateButton.disabled = false;
+        participantGateButton.textContent = "대회 입장";
+        if (error) {
+          participantGateError.textContent = error.message || "참가자 비밀번호가 올바르지 않습니다.";
+          return false;
+        }
+        storeAccessToken(data?.token || "");
+        accessRole = data?.role || "participant";
+        participantGatePassword.value = "";
+        participantGateError.textContent = "";
+        accessGate.hidden = true;
+        updateSubadminUi();
+        await loadScores();
+        subscribeRealtime();
+        return true;
+      }
+
+      async function activateSubadmin() {
+        const password = subadminPasswordInput.value.trim();
+        if (!password || !accessToken) {
+          showMessage("참가자 입장 후 서브관리자 비밀번호를 입력해 주세요.", "warning");
+          return;
+        }
+        subadminActivateButton.disabled = true;
+        const { data, error } = await db.rpc("upgrade_tennis_access_session", {
+          p_event_id: String(eventId),
+          p_token: accessToken,
+          p_subadmin_password: password
+        });
+        subadminActivateButton.disabled = false;
+        if (error) {
+          showMessage(`서브관리자 권한 활성화 실패: ${error.message}`, "error");
+          return;
+        }
+        accessRole = data?.role || "subadmin";
+        subadminPasswordInput.value = "";
+        updateSubadminUi();
+        showMessage("서브관리자 권한이 활성화되었습니다.", "success");
       }
 
       function updateAdminUi() {
@@ -928,11 +1073,12 @@
         const primary = createElement("button", "button button-primary");
         primary.type = "button";
         primary.dataset.action = saved ? "edit" : "confirm";
-        primary.textContent = saved ? (isEventOwner ? "수정" : "확정 완료") : "확정";
-        primary.disabled = Boolean(saved && !isEventOwner);
+        const canManageScore = isEventOwner || accessRole === "subadmin";
+        primary.textContent = saved ? (canManageScore ? "수정" : "확정 완료") : "확정";
+        primary.disabled = Boolean(saved && !canManageScore);
         actions.appendChild(primary);
 
-        if (saved && isEventOwner) {
+        if (saved && (isEventOwner || accessRole === "subadmin")) {
           const reset = createElement("button", "button button-danger", "초기화");
           reset.type = "button";
           reset.dataset.action = "reset";
@@ -1006,23 +1152,24 @@
       async function confirmScore(row) {
         const values = collectScores(row);
         if (!values || !eventData) return;
-        const payload = {
-          event_id: String(eventData.id),
-          draw_round: Number(eventData.draw_round || 1),
-          schedule_key: row.dataset.scheduleKey,
-          schedule_title: row.dataset.scheduleTitle,
-          game_number: Number(row.dataset.gameNumber),
-          team1_score: values.team1,
-          team2_score: values.team2,
-          is_confirmed: true,
-          confirmed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          updated_by: currentUser?.id || null
-        };
+        if (!accessToken) {
+          accessGate.hidden = false;
+          showMessage("참가자 비밀번호 인증이 필요합니다.", "warning");
+          return;
+        }
 
-        const { error } = await db.from("tennis_match_scores").insert(payload);
+        const { error } = await db.rpc("confirm_tennis_score", {
+          p_token: accessToken || null,
+          p_event_id: String(eventData.id),
+          p_draw_round: Number(eventData.draw_round || 1),
+          p_schedule_key: row.dataset.scheduleKey,
+          p_schedule_title: row.dataset.scheduleTitle,
+          p_game_number: Number(row.dataset.gameNumber),
+          p_team1_score: values.team1,
+          p_team2_score: values.team2
+        });
         if (error) {
-          if (error.code === "23505") {
+          if (error.code === "23505" || /이미 확정/.test(error.message || "")) {
             showMessage("다른 사용자가 이미 이 경기의 스코어를 확정했습니다. 최신 내용을 불러옵니다.", "warning");
             await loadScores();
             return;
@@ -1046,24 +1193,39 @@
       }
 
       async function saveAdminEdit(row) {
-        if (!isEventOwner || !eventData) return;
+        if (!(isEventOwner || accessRole === "subadmin") || !eventData) return;
         const values = collectScores(row);
         if (!values) return;
 
-        const { error } = await db
-          .from("tennis_match_scores")
-          .update({
-            team1_score: values.team1,
-            team2_score: values.team2,
-            is_confirmed: true,
-            confirmed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            updated_by: currentUser.id
-          })
-          .eq("event_id", String(eventData.id))
-          .eq("draw_round", Number(eventData.draw_round || 1))
-          .eq("schedule_key", row.dataset.scheduleKey)
-          .eq("game_number", Number(row.dataset.gameNumber));
+        let error;
+        if (isEventOwner) {
+          const response = await db
+            .from("tennis_match_scores")
+            .update({
+              team1_score: values.team1,
+              team2_score: values.team2,
+              is_confirmed: true,
+              confirmed_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              updated_by: currentUser.id
+            })
+            .eq("event_id", String(eventData.id))
+            .eq("draw_round", Number(eventData.draw_round || 1))
+            .eq("schedule_key", row.dataset.scheduleKey)
+            .eq("game_number", Number(row.dataset.gameNumber));
+          error = response.error;
+        } else {
+          const response = await db.rpc("subadmin_update_tennis_score", {
+            p_token: accessToken,
+            p_event_id: String(eventData.id),
+            p_draw_round: Number(eventData.draw_round || 1),
+            p_schedule_key: row.dataset.scheduleKey,
+            p_game_number: Number(row.dataset.gameNumber),
+            p_team1_score: values.team1,
+            p_team2_score: values.team2
+          });
+          error = response.error;
+        }
 
         if (error) {
           showMessage(`관리자 스코어 수정 실패: ${error.message}`, "error");
@@ -1074,17 +1236,30 @@
       }
 
       async function resetScore(row) {
-        if (!isEventOwner || !eventData) return;
+        if (!(isEventOwner || accessRole === "subadmin") || !eventData) return;
         const confirmed = window.confirm("이 경기의 확정 스코어를 초기화할까요? 초기화 후 사용자가 다시 입력할 수 있습니다.");
         if (!confirmed) return;
 
-        const { error } = await db
-          .from("tennis_match_scores")
-          .delete()
-          .eq("event_id", String(eventData.id))
-          .eq("draw_round", Number(eventData.draw_round || 1))
-          .eq("schedule_key", row.dataset.scheduleKey)
-          .eq("game_number", Number(row.dataset.gameNumber));
+        let error;
+        if (isEventOwner) {
+          const response = await db
+            .from("tennis_match_scores")
+            .delete()
+            .eq("event_id", String(eventData.id))
+            .eq("draw_round", Number(eventData.draw_round || 1))
+            .eq("schedule_key", row.dataset.scheduleKey)
+            .eq("game_number", Number(row.dataset.gameNumber));
+          error = response.error;
+        } else {
+          const response = await db.rpc("subadmin_reset_tennis_score", {
+            p_token: accessToken,
+            p_event_id: String(eventData.id),
+            p_draw_round: Number(eventData.draw_round || 1),
+            p_schedule_key: row.dataset.scheduleKey,
+            p_game_number: Number(row.dataset.gameNumber)
+          });
+          error = response.error;
+        }
 
         if (error) {
           showMessage(`스코어 초기화 실패: ${error.message}`, "error");
@@ -1152,13 +1327,18 @@
         try {
           const action = button.dataset.action;
           if (action === "confirm") await confirmScore(row);
-          if (action === "edit" && isEventOwner) enableAdminEdit(row);
-          if (action === "save-edit" && isEventOwner) await saveAdminEdit(row);
-          if (action === "reset" && isEventOwner) await resetScore(row);
+          if (action === "edit" && (isEventOwner || accessRole === "subadmin")) enableAdminEdit(row);
+          if (action === "save-edit" && (isEventOwner || accessRole === "subadmin")) await saveAdminEdit(row);
+          if (action === "reset" && (isEventOwner || accessRole === "subadmin")) await resetScore(row);
         } finally {
           if (button.isConnected) button.disabled = false;
         }
       });
+
+      participantGateButton.addEventListener("click", enterWithParticipantPassword);
+      participantGatePassword.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); enterWithParticipantPassword(); } });
+      subadminActivateButton.addEventListener("click", activateSubadmin);
+      subadminPasswordInput.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); activateSubadmin(); } });
 
       adminLoginButton.addEventListener("click", loginAdmin);
       adminLogoutButton.addEventListener("click", logoutAdmin);
@@ -1178,6 +1358,18 @@
         await initializeSession();
         const loaded = await loadEvent();
         if (!loaded) return;
+        const ownerBypass = Boolean(currentUser && String(eventData.owner_id || "") === String(currentUser.id));
+        if (ownerBypass) {
+          accessGate.hidden = true;
+          accessRole = "owner";
+        } else {
+          const accessValid = await validateStoredAccess();
+          if (!accessValid) {
+            accessGate.hidden = false;
+            participantGatePassword.focus();
+            return;
+          }
+        }
         await loadScores();
         subscribeRealtime();
       })();

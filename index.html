@@ -1548,6 +1548,27 @@
       .result-section-heading { margin-top: 3px; font-size: .82rem; }
     }
 
+
+    .access-setting-panel {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+      gap: 10px;
+      align-items: end;
+      padding: 12px;
+      margin: 10px 0 14px;
+      background: #fff8e8;
+      border: 1px solid #ead49a;
+      border-radius: 12px;
+    }
+    .access-setting-panel[hidden] { display: none !important; }
+    .access-setting-status { grid-column: 1 / -1; color: #7b5a15; font-size: .76rem; font-weight: 800; }
+    .password-visible-input { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .08em; }
+    @media (max-width: 650px) {
+      .access-setting-panel { grid-template-columns: 1fr 1fr; padding: 8px; gap: 6px; }
+      .access-setting-panel .button { grid-column: 1 / -1; min-height: 38px; }
+      .access-setting-status { font-size: .65rem; }
+    }
+
 </style>
 </head>
 <body>
@@ -1578,6 +1599,12 @@
 <div aria-live="polite" class="summary-badge" id="groupSummary">4개 조 · 0명</div>
 </div>
 <div class="top-setting"><label class="field" for="eventTitleInput"><span class="field-label">대회명</span><input autocomplete="off" id="eventTitleInput" maxlength="60" name="eventTitle" placeholder="예: 7월 모닝스타 월례대회" type="text" value="모닝스타 테니스 경기"/></label><label class="field" for="totalGroupCount"><span class="field-label">전체 조 개수</span><input autocomplete="off" id="totalGroupCount" inputmode="numeric" max="30" min="1" name="totalGroupCount" step="1" type="number" value="4"/></label><label class="field" for="drawOrderMode"><span class="field-label">추첨 순서</span><select id="drawOrderMode" name="drawOrderMode"><option value="random">무작위 추첨</option><option value="input">입력 순서 유지</option></select></label></div>
+<div class="access-setting-panel" hidden id="accessSettingPanel">
+<label class="field" for="participantAccessPassword"><span class="field-label">일반 참가자 비밀번호</span><input class="password-visible-input" id="participantAccessPassword" maxlength="20" minlength="4" type="text" value="0000" inputmode="numeric" autocomplete="off"/></label>
+<label class="field" for="subadminAccessPassword"><span class="field-label">서브관리자 비밀번호</span><input class="password-visible-input" id="subadminAccessPassword" maxlength="20" minlength="4" type="text" value="0000" inputmode="numeric" autocomplete="off"/></label>
+<button class="button button-secondary" id="saveAccessPasswordsButton" type="button">접속 비밀번호 저장</button>
+<div class="access-setting-status" id="accessSettingStatus">새 대회는 추첨 저장 시 함께 저장됩니다. 기본값은 모두 0000입니다.</div>
+</div>
 
 <div aria-disabled="true" class="schedule-option-panel is-disabled">
 <label class="field" for="twelvePlayerMode">
@@ -1670,8 +1697,6 @@
 <div class="share-url-row">
 <input aria-label="사용자 공유 주소" id="shareUrlInput" readonly="" type="text"/>
 <button class="button button-secondary" id="copyShareUrlButton" type="button">공유 주소 복사</button>
-<a class="button-link" href="#" id="openScorePageButton">2페이지 열기</a>
-<a class="button-link" href="#" id="openResultsPageButton">3페이지 결과</a>
 </div>
 </div>
 <div class="result-grid" id="resultGrid"></div>
@@ -1801,8 +1826,11 @@
       const sharePanel = document.getElementById("sharePanel");
       const shareUrlInput = document.getElementById("shareUrlInput");
       const copyShareUrlButton = document.getElementById("copyShareUrlButton");
-      const openScorePageButton = document.getElementById("openScorePageButton");
-      const openResultsPageButton = document.getElementById("openResultsPageButton");
+      const accessSettingPanel = document.getElementById("accessSettingPanel");
+      const participantAccessPassword = document.getElementById("participantAccessPassword");
+      const subadminAccessPassword = document.getElementById("subadminAccessPassword");
+      const saveAccessPasswordsButton = document.getElementById("saveAccessPasswordsButton");
+      const accessSettingStatus = document.getElementById("accessSettingStatus");
       const gameScheduleGrid = document.getElementById("gameScheduleGrid");
 
       let drawRound = 0;
@@ -1810,6 +1838,8 @@
       let participantDrafts = [];
       let realtimeChannel = null;
       let currentAdmin = null;
+      let loadedEventOwnerId = "";
+      let loadedEventId = new URLSearchParams(window.location.search).get("event") || "";
 
       function normalizeText(value) {
         return value.replace(/\s+/g, " ").trim();
@@ -1851,8 +1881,6 @@
         resultsPageLink.removeAttribute("aria-disabled");
 
         shareUrlInput.value = scoreUrl;
-        openScorePageButton.href = scoreUrl;
-        openResultsPageButton.href = resultsUrl;
         sharePanel.hidden = false;
       }
 
@@ -3287,6 +3315,71 @@
         resultPanel.classList.add("show");
       }
 
+
+      function normalizeAccessPassword(value) {
+        const normalized = String(value || "").trim();
+        return normalized || "0000";
+      }
+
+      function updateAccessSettingVisibility() {
+        const canView = Boolean(currentAdmin && (!loadedEventId || (loadedEventOwnerId && String(loadedEventOwnerId) === String(currentAdmin.id))));
+        accessSettingPanel.hidden = !canView;
+      }
+
+      async function loadEventCredentials() {
+        if (!currentAdmin || !loadedEventId || !loadedEventOwnerId || String(loadedEventOwnerId) !== String(currentAdmin.id)) {
+          updateAccessSettingVisibility();
+          return;
+        }
+
+        const { data, error } = await db
+          .from("tennis_event_access_credentials")
+          .select("participant_password, subadmin_password, updated_at")
+          .eq("event_id", String(loadedEventId))
+          .maybeSingle();
+
+        if (error) {
+          console.warn("접속 비밀번호 조회 실패:", error);
+          accessSettingStatus.textContent = "최신 Supabase SQL 적용 후 비밀번호를 조회할 수 있습니다.";
+          return;
+        }
+
+        participantAccessPassword.value = data?.participant_password || "0000";
+        subadminAccessPassword.value = data?.subadmin_password || "0000";
+        accessSettingStatus.textContent = data
+          ? "현재 대회에 저장된 비밀번호입니다. 변경 후 저장 버튼을 누르세요."
+          : "기본 비밀번호 0000이 적용됩니다.";
+      }
+
+      async function saveEventCredentials(eventId, quiet = false) {
+        if (!currentAdmin || !eventId) return false;
+        const participantPasswordValue = normalizeAccessPassword(participantAccessPassword.value);
+        const subadminPasswordValue = normalizeAccessPassword(subadminAccessPassword.value);
+
+        if (participantPasswordValue.length < 4 || participantPasswordValue.length > 20 || subadminPasswordValue.length < 4 || subadminPasswordValue.length > 20) {
+          if (!quiet) showMessage("접속 비밀번호는 각각 4~20자로 입력해 주세요.", "error");
+          return false;
+        }
+
+        const { error } = await db.rpc("set_tennis_event_credentials", {
+          p_event_id: String(eventId),
+          p_participant_password: participantPasswordValue,
+          p_subadmin_password: subadminPasswordValue
+        });
+
+        if (error) {
+          console.error("접속 비밀번호 저장 오류:", error);
+          if (!quiet) showMessage(`접속 비밀번호 저장 실패: ${error.message}`, "error");
+          return false;
+        }
+
+        participantAccessPassword.value = participantPasswordValue;
+        subadminAccessPassword.value = subadminPasswordValue;
+        accessSettingStatus.textContent = "접속 비밀번호가 저장되었습니다. 기존 참가자 접속 세션은 만료되었습니다.";
+        if (!quiet) showMessage("참가자·서브관리자 비밀번호를 저장했습니다.", "warning");
+        return true;
+      }
+
       function updateAdminUi(user) {
         currentAdmin = user || null;
 
@@ -3298,6 +3391,8 @@
 
           drawButton.disabled = false;
           retryButton.disabled = !hasDrawn;
+          updateAccessSettingVisibility();
+          loadEventCredentials();
         } else {
           adminLoginPanel.style.display = "grid";
           adminStatus.style.display = "none";
@@ -3305,6 +3400,7 @@
 
           drawButton.disabled = true;
           retryButton.disabled = true;
+          updateAccessSettingVisibility();
         }
       }
 
@@ -3578,6 +3674,11 @@
         }
 
         updatePageLinks(data.id, data.share_code);
+        loadedEventId = String(data.id);
+        loadedEventOwnerId = String(data.owner_id || "");
+        updateAccessSettingVisibility();
+        if (currentAdmin && String(loadedEventOwnerId) === String(currentAdmin.id)) await loadEventCredentials();
+
         drawRound = data.draw_round || 1;
         hasDrawn = true;
         retryButton.disabled = !currentAdmin;
@@ -3649,6 +3750,8 @@
                 return;
               }
 
+              loadedEventOwnerId = String(updatedEvent.owner_id || loadedEventOwnerId || "");
+              updateAccessSettingVisibility();
               drawRound = updatedEvent.draw_round || 1;
               hasDrawn = true;
               retryButton.disabled = !currentAdmin;
@@ -3851,6 +3954,15 @@
       });
 
 
+
+      saveAccessPasswordsButton.addEventListener("click", () => {
+        if (!loadedEventId) {
+          accessSettingStatus.textContent = "새 대회는 추첨 및 경기 생성 시 비밀번호가 함께 저장됩니다.";
+          showMessage("새 대회 비밀번호는 추첨 저장 시 함께 저장됩니다.", "warning");
+          return;
+        }
+        saveEventCredentials(loadedEventId);
+      });
 
       renderGroupCards();
       updateNameProgress();
