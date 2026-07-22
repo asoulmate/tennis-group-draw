@@ -678,6 +678,7 @@
       const mainPageLink = document.getElementById("mainPageLink");
       const scorePageLink = document.getElementById("scorePageLink");
       const resultsPageLink = document.getElementById("resultsPageLink");
+      const adminPageLink = document.getElementById("adminPageLink");
       const rankingModeInputs = Array.from(document.querySelectorAll('input[name="rankingMode"]'));
       const rankingModeHelp = document.getElementById("rankingModeHelp");
       const accessGate = document.getElementById("accessGate");
@@ -685,9 +686,49 @@
       const participantGateButton = document.getElementById("participantGateButton");
       const participantGateError = document.getElementById("participantGateError");
 
+      const EVENT_CONTEXT_STORAGE_KEY = "tennis-current-event-context";
+
+      function readEventContext() {
+        try {
+          const raw = sessionStorage.getItem(EVENT_CONTEXT_STORAGE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          return parsed && parsed.eventId ? parsed : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function saveEventContext(nextEventId, nextShareCode) {
+        if (!nextEventId) return;
+        try {
+          sessionStorage.setItem(EVENT_CONTEXT_STORAGE_KEY, JSON.stringify({
+            eventId: String(nextEventId),
+            shareCode: String(nextShareCode || ""),
+            savedAt: Date.now()
+          }));
+        } catch (_) {
+          // 세션 저장소를 사용할 수 없어도 현재 URL로 계속 동작합니다.
+        }
+      }
+
       const params = new URLSearchParams(window.location.search);
-      const eventId = params.get("event") || "";
-      const shareCode = params.get("code") || "";
+      let eventId = params.get("event") || "";
+      let shareCode = params.get("code") || "";
+
+      if (!eventId) {
+        const savedContext = readEventContext();
+        if (savedContext?.eventId) {
+          eventId = String(savedContext.eventId);
+          shareCode = String(savedContext.shareCode || "");
+          const recoveredUrl = new URL(window.location.href);
+          recoveredUrl.searchParams.set("event", eventId);
+          if (shareCode) recoveredUrl.searchParams.set("code", shareCode);
+          window.history.replaceState({}, "", recoveredUrl.toString());
+        }
+      }
+
+      saveEventContext(eventId, shareCode);
 
       let eventData = null;
       let scoreRows = new Map();
@@ -772,6 +813,7 @@
       mainPageLink.href = buildSiblingPageUrl("index.html");
       scorePageLink.href = buildSiblingPageUrl("scores.html");
       resultsPageLink.href = buildSiblingPageUrl("results.html");
+      adminPageLink.href = buildSiblingPageUrl("admin.html");
 
       function scoreKey(scheduleKey, gameNumber) {
         return `${scheduleKey}::${gameNumber}`;

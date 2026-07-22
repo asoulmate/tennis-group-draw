@@ -1823,6 +1823,7 @@
       const mainPageLink = document.getElementById("mainPageLink");
       const scorePageLink = document.getElementById("scorePageLink");
       const resultsPageLink = document.getElementById("resultsPageLink");
+      const adminPageLink = document.getElementById("adminPageLink");
       const sharePanel = document.getElementById("sharePanel");
       const shareUrlInput = document.getElementById("shareUrlInput");
       const copyShareUrlButton = document.getElementById("copyShareUrlButton");
@@ -1840,6 +1841,20 @@
       let currentAdmin = null;
       let loadedEventOwnerId = "";
       let loadedEventId = new URLSearchParams(window.location.search).get("event") || "";
+      const EVENT_CONTEXT_STORAGE_KEY = "tennis-current-event-context";
+
+      function saveEventContext(nextEventId, nextShareCode) {
+        if (!nextEventId) return;
+        try {
+          sessionStorage.setItem(EVENT_CONTEXT_STORAGE_KEY, JSON.stringify({
+            eventId: String(nextEventId),
+            shareCode: String(nextShareCode || ""),
+            savedAt: Date.now()
+          }));
+        } catch (_) {
+          // 세션 저장소를 사용할 수 없어도 현재 URL로 계속 동작합니다.
+        }
+      }
 
       function normalizeText(value) {
         return value.replace(/\s+/g, " ").trim();
@@ -1879,6 +1894,8 @@
         resultsPageLink.href = resultsUrl;
         resultsPageLink.classList.remove("is-disabled");
         resultsPageLink.removeAttribute("aria-disabled");
+        adminPageLink.href = buildSiblingPageUrl("admin.html", eventId, shareCode);
+        saveEventContext(eventId, shareCode);
 
         shareUrlInput.value = scoreUrl;
         sharePanel.hidden = false;
@@ -3966,6 +3983,16 @@
 
       renderGroupCards();
       updateNameProgress();
+
+      {
+        const initialParams = new URLSearchParams(window.location.search);
+        const initialEventId = initialParams.get("event") || "";
+        const initialShareCode = initialParams.get("code") || "";
+        if (initialEventId) {
+          adminPageLink.href = buildSiblingPageUrl("admin.html", initialEventId, initialShareCode);
+          saveEventContext(initialEventId, initialShareCode);
+        }
+      }
 
       initializeAdminSession().then(() => {
         loadSharedEvent().then(() => {
