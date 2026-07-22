@@ -537,12 +537,17 @@
     .subadmin-panel.is-active { background: #eaf8f1; border-color: #9fd1bd; }
     .subadmin-panel .field-label { font-size: .68rem; }
     .subadmin-panel input { min-height: 38px; }
+    .subadmin-actions { display: flex; gap: 6px; align-items: center; }
+    .subadmin-actions .button { white-space: nowrap; }
+    .subadmin-actions .button[hidden] { display: none !important; }
     .subadmin-status { grid-column: 1 / -1; color: #6f571c; font-size: .68rem; font-weight: 850; }
     @media (max-width: 650px) {
       .access-card { padding: 16px; }
-      .subadmin-panel { grid-template-columns: 1fr auto; padding: 7px; gap: 5px; }
+      .subadmin-panel { grid-template-columns: 1fr; padding: 7px; gap: 5px; }
       .subadmin-panel input { min-height: 34px; }
-      .subadmin-panel .button { min-height: 34px; padding: 5px 8px; font-size: .68rem; }
+      .subadmin-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+      .subadmin-panel:not(.is-active) .subadmin-actions { grid-template-columns: 1fr; }
+      .subadmin-actions .button { width: 100%; min-height: 34px; padding: 5px 8px; font-size: .68rem; }
     }
 
 </style>
@@ -592,7 +597,10 @@
 <div class="panel-heading"><div><h2 id="subadminTitle">서브관리자 권한</h2></div></div>
 <div class="subadmin-panel" id="subadminPanel">
 <label class="field" for="subadminPasswordInput"><span class="field-label">서브관리자 비밀번호</span><input id="subadminPasswordInput" type="password" inputmode="numeric" maxlength="20" autocomplete="off" placeholder="비밀번호 입력"/></label>
+<div class="subadmin-actions">
 <button class="button button-secondary" id="subadminActivateButton" type="button">권한 활성화</button>
+<button class="button button-danger" hidden id="subadminLogoutButton" type="button">서브관리자 로그아웃</button>
+</div>
 <div class="subadmin-status" id="subadminStatus">참가자 입장 후, 서브관리자 비밀번호를 추가 입력하면 확정 스코어 수정·초기화가 가능합니다.</div>
 </div>
 </section><section aria-labelledby="adminTitle" class="panel">
@@ -647,6 +655,7 @@
       const subadminPanel = document.getElementById("subadminPanel");
       const subadminPasswordInput = document.getElementById("subadminPasswordInput");
       const subadminActivateButton = document.getElementById("subadminActivateButton");
+      const subadminLogoutButton = document.getElementById("subadminLogoutButton");
       const subadminStatus = document.getElementById("subadminStatus");
 
       const EVENT_CONTEXT_STORAGE_KEY = "tennis-current-event-context";
@@ -772,10 +781,13 @@
       function updateSubadminUi() {
         const active = accessRole === "subadmin";
         subadminPanel.classList.toggle("is-active", active);
+        subadminActivateButton.hidden = active;
         subadminActivateButton.disabled = active;
+        subadminLogoutButton.hidden = !active;
+        subadminLogoutButton.disabled = false;
         subadminPasswordInput.disabled = active;
         subadminStatus.textContent = active
-          ? "서브관리자 권한 활성화됨 · 이 대회의 확정 스코어만 수정·초기화할 수 있습니다."
+          ? "서브관리자 권한 활성화됨 · 로그아웃하면 일반 참가자 상태로 돌아갑니다."
           : "참가자 입장 후, 서브관리자 비밀번호를 추가 입력하면 확정 스코어 수정·초기화가 가능합니다.";
         if (eventData) renderSchedules();
       }
@@ -850,6 +862,33 @@
         subadminPasswordInput.value = "";
         updateSubadminUi();
         showMessage("서브관리자 권한이 활성화되었습니다.", "success");
+      }
+
+      async function logoutSubadmin() {
+        if (accessRole !== "subadmin" || !accessToken || !eventId) {
+          accessRole = accessToken ? "participant" : "";
+          updateSubadminUi();
+          return;
+        }
+
+        subadminLogoutButton.disabled = true;
+        subadminLogoutButton.textContent = "로그아웃 중...";
+        const { data, error } = await db.rpc("downgrade_tennis_access_session", {
+          p_event_id: String(eventId),
+          p_token: accessToken
+        });
+        subadminLogoutButton.disabled = false;
+        subadminLogoutButton.textContent = "서브관리자 로그아웃";
+
+        if (error) {
+          showMessage(`서브관리자 로그아웃 실패: ${error.message}`, "error");
+          return;
+        }
+
+        accessRole = data?.role || "participant";
+        subadminPasswordInput.value = "";
+        updateSubadminUi();
+        showMessage("서브관리자 권한을 종료하고 일반 참가자 상태로 전환했습니다.", "warning");
       }
 
       function updateAdminUi() {
@@ -1380,6 +1419,7 @@
       participantGateButton.addEventListener("click", enterWithParticipantPassword);
       participantGatePassword.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); enterWithParticipantPassword(); } });
       subadminActivateButton.addEventListener("click", activateSubadmin);
+      subadminLogoutButton.addEventListener("click", logoutSubadmin);
       subadminPasswordInput.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); activateSubadmin(); } });
 
       adminLoginButton.addEventListener("click", loginAdmin);
